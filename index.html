@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>בן האנוש - אינטראקטיבי</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&display=swap" rel="stylesheet">
+    <!-- Added new font -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Assistant', sans-serif;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            /* Center the art container */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f1f5f9; /* bg-slate-100 */
+        }
+        
+        #art-container {
+            position: relative;
+            width: 100%;
+            max-height: 100vh;
+            aspect-ratio: 600 / 757;
+            margin: 0 auto;
+            overflow: hidden;
+            background-color: #f0f0f0;
+            touch-action: none;
+        }
+
+        .layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+        
+        #man, #head { cursor: grab; }
+        #man:active, #head:active { cursor: grabbing; }
+
+        #head, #hat, #eat {
+            transform-origin: 50% 115%; /* Pivot from below the chin for an arc swing */
+        }
+
+        #head-container {
+            z-index: 6;
+            pointer-events: none;
+            transform-origin: 50% 216%; /* Make sure it pivots with the body */
+        }
+        #head { pointer-events: auto; }
+        #man { transform-origin: 50% 216%; }
+        
+        #permission-request {
+            display: none; 
+            position: fixed; 
+            bottom: 20px;
+            left: 50%; 
+            transform: translateX(-50%); 
+            z-index: 2000;
+        }
+
+        #text-overlay {
+            z-index: 2; /* Behind the wall and man */
+            pointer-events: none; /* Allows clicks to pass through container */
+            display: flex;
+            align-items: center; /* Changed to center */
+            justify-content: center;
+            text-align: center;
+            line-height: 1.1;
+            color: white;
+            font-family: 'Gilda Display', serif; /* New font */
+            font-size: 3.8rem; /* Adjusted font size */
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
+            transform-origin: 50% 216%; /* Same pivot as the man for opposite swing */
+            opacity: 0; /* Initially hidden */
+            transition: opacity 0.5s ease-in-out; /* Smooth fade-in */
+        }
+
+        .sub-headline {
+            font-family: 'Assistant', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 400;
+            line-height: 1.2;
+            letter-spacing: 0.1em;
+            margin-top: 0.5rem;
+            display: block;
+        }
+
+        @keyframes blink-animation {
+          0%, 49.9% { opacity: 1; }
+          50%, 100% { opacity: 0; }
+        }
+
+        #eat {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #eat.is-blinking {
+            animation: blink-animation 0.3s infinite;
+        }
+        
+        /* Particle styles */
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #84cc16; /* Apple green */
+            border-radius: 50%;
+            opacity: 0; /* Start invisible */
+        }
+
+        @keyframes fly-out {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                /* These vars are set by JS for random direction */
+                transform: translate(var(--x), var(--y)) scale(0);
+                opacity: 0;
+            }
+        }
+        
+        #wall {
+            transition: top 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        #wall.raised {
+            top: 25% !important; /* Covers 3/4 of the screen */
+        }
+
+        #wall-header {
+            z-index: 2; /* Behind the wall */
+            display: flex;
+            align-items: flex-start;
+            padding-top: 2%; /* Fine-tune vertical position */
+            justify-content: center;
+            font-family: 'Gilda Display', serif;
+            font-size: 4rem;
+            font-weight: 700;
+            color: #334155; /* slate-700 */
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            pointer-events: none;
+            top: -50%; /* Start off-screen */
+            transition: top 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        #wall.raised ~ #wall-header {
+            top: calc(18% - 120px); /* Position just above the raised wall, raised by 120px */
+        }
+        
+        #wall-text-overlay {
+            z-index: 4; /* Above the wall (3), below the man (5) */
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.2;
+            font-family: 'Orbitron', sans-serif; /* Changed Font */
+            font-size: 2.8rem;
+            font-weight: 700;
+            transform-origin: 50% 216%; /* Same pivot as other text for swinging motion */
+            opacity: 0; /* Hidden by default */
+            transition: opacity 0.8s ease-in-out 0.5s; /* Smooth fade-in with a delay */
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #00ffff);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: animated-bevel 2s infinite alternate, gradient-flow 4s infinite linear;
+        }
+        
+        @keyframes animated-bevel {
+          0% {
+            text-shadow:
+              /* Glows */
+              0 0 2px rgba(255, 255, 255, 0.7),
+              0 0 8px #00ffff,
+              0 0 18px #00ffff,
+              /* Extrusion */
+              1px 1px 0 #0d7b7b, 2px 2px 0 #0d7b7b, 3px 3px 0 #0d7b7b, 4px 4px 0 #0d7b7b, 5px 5px 0 #0d7b7b,
+              /* Drop Shadow */
+              6px 6px 10px rgba(0, 0, 0, 0.5);
+          }
+          100% {
+            text-shadow:
+              /* Glows */
+              0 0 2px rgba(255, 255, 255, 0.7),
+              0 0 8px #ff00ff,
+              0 0 18px #ff00ff,
+              /* Extrusion */
+              1px 1px 0 #7a0d7a, 2px 2px 0 #7a0d7a, 3px 3px 0 #7a0d7a, 4px 4px 0 #7a0d7a, 5px 5px 0 #7a0d7a,
+              /* Drop Shadow */
+              6px 6px 10px rgba(0, 0, 0, 0.5);
+          }
+        }
+        
+        @keyframes gradient-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #wall.raised ~ #wall-text-overlay {
+            opacity: 1;
+        }
+
+        #wall-toggle-btn {
+            z-index: 9;
+            position: absolute;
+            top: calc(25% + 15px);
+            left: calc(49.5% - 15px);
+            width: 35px;
+            height: 35px;
+            background-color: transparent; /* Make button invisible */
+            border: none; /* Remove border */
+            border-radius: 50%;
+            /* Custom PUSH cursor, URL-encoded SVG */
+            cursor: url("data:image/svg+xml,<svg width='70' height='25' xmlns='http://www.w3.org/2000/svg'><text x='35' y='18' font-family='Orbitron, sans-serif' font-weight='700' font-size='18px' text-anchor='middle' fill='white' stroke='black' stroke-width='0.5'>PUSH</text></svg>"), auto;
+            transform: translate(-50%, -50%);
+        }
+
+        #wall-toggle-btn:hover {
+             background-color: transparent; /* Ensure it stays invisible on hover */
+        }
+
+        /* Apple pulse animation */
+        @keyframes apple-pulse {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.1);
+          }
+        }
+
+        #apple.is-pulsing {
+          animation: apple-pulse 1.2s infinite ease-in-out;
+        }
+
+        #portfolio-buttons-container {
+            z-index: 10;
+            pointer-events: none; /* Let clicks pass through the container itself */
+        }
+
+        .portfolio-btn {
+            position: absolute;
+            top: calc(25% + 130px); /* Position below the wall's top edge */
+            width: 80px;
+            height: 80px;
+            background-color: rgba(51, 65, 85, 0.75); /* slate-700 with transparency */
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none; /* Buttons are not clickable by default */
+            transform: translate(-50%, calc(-50% + 20px)); /* Start lower */
+            transition: opacity 0.4s ease-out 0.7s, transform 0.4s ease-out 0.7s; /* Delayed fade and slide-in */
+        }
+
+        .portfolio-btn:hover {
+            transform: translate(-50%, -50%) scale(1.1); /* On hover, move to final position and scale */
+            background-color: rgba(30, 41, 59, 0.9);
+            border-color: white;
+        }
+
+        #left-portfolio-btn {
+            left: 32%;
+        }
+
+        #right-portfolio-btn {
+            left: 68%;
+        }
+
+        /* Use general sibling combinator to show buttons when wall is raised */
+        #wall.raised ~ #portfolio-buttons-container .portfolio-btn {
+            opacity: 1;
+            pointer-events: auto; /* Make them clickable */
+            transform: translate(-50%, -50%); /* Slide into final position */
+        }
+
+        /* Arrow Indicator Styles */
+        #arrow-indicator {
+            position: absolute;
+            top: 50%; /* Centered vertically */
+            left: 50%; /* Centered horizontally */
+            width: 75%; /* Increased size by 1.5x */
+            height: auto;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 9;
+            transform-origin: 0% 50%; /* Pivot from the left center (base) */
+            transform: translateY(-50%) rotate(90deg); /* Position base at center and rotate */
+            transition: opacity 0.5s ease-in-out 0.5s; /* Smooth fade-in */
+        }
+
+        #wall.raised ~ #arrow-indicator {
+            opacity: 1; /* Show the arrow */
+        }
+
+
+    </style>
+</head>
+<body>
+
+    <div id="art-container">
+        <img id="bg" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fbg.png?alt=media&token=f527f9b1-3bc4-48e9-9af2-e7d6f42e72c0" alt="רקע" class="layer" style="z-index: 1; pointer-events: none;">
+        
+        <div id="text-overlay" class="layer">
+            <div>
+                <span>OREN<br>GAMCHI</span>
+                <span class="sub-headline" id="sub-headline">TECHNICAL<br>ARTIST</span>
+            </div>
+        </div>
+
+        <img id="wall" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fwall%20move.png?alt=media&token=4fc1b1f6-acff-440b-a979-2d4b29e273c4" alt="קיר" class="layer" style="z-index: 3; pointer-events: none; top: 76%;">
+
+        <img id="arrow-indicator" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Farrow.png?alt=media&token=03fcdee4-afc7-41ea-93ee-4dc2d20ee9bb" alt="חץ" class="layer">
+
+        <div id="wall-header" class="layer">
+            <span>MY PORTFOLIO</span>
+        </div>
+
+        <div id="wall-text-overlay" class="layer">
+            <span>VISIT MY<br>WEBSITE</span>
+        </div>
+
+        <img id="man" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fman.png?alt=media&token=8da1ff64-f319-49fa-91de-28ec3d5f4976" alt="איש" class="layer" style="z-index: 5;">
+        
+        <div id="head-container" class="layer">
+            <img id="head" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fhead.png?alt=media&token=b2516d34-8a4d-4b6f-87fe-0540de7260bb" alt="ראש" class="layer">
+            <img id="hat" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fhat.png?alt=media&token=d71697e7-7ef1-478d-9cd9-8679d75e3bad" alt="כובע" class="layer" style="pointer-events: none;">
+            <img id="eat" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Feat.png?alt=media&token=4b5bcb6b-2487-4b1c-b0f2-fae65eb72b97" alt="eat" class="layer">
+        </div>
+        
+        <div id="particle-container" class="layer" style="z-index: 7; pointer-events: none;"></div>
+
+        <img id="apple" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fapple.png?alt=media&token=85c0edb4-5d11-43fd-8ceb-88731253a828" alt="תפוח" class="layer" style="z-index: 8; pointer-events: none;">
+
+        <button id="wall-toggle-btn" class="layer"></button>
+
+        <div id="portfolio-buttons-container" class="layer">
+             <a href="https://www.artstation.com/orengamchi" target="_blank" id="left-portfolio-btn" class="portfolio-btn">
+                 AI
+             </a>
+             <a href="https://www.linkedin.com/in/oren-gamchi/" target="_blank" id="right-portfolio-btn" class="portfolio-btn">
+                 HR
+             </a>
+        </div>
+
+    </div>
+    
+    <div id="permission-request">
+        <button id="permission-btn" class="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-indigo-700 transition-colors text-base">
+            הפעל חיישני תנועה
+        </button>
+    </div>
+
+    <script type="module">
+        // --- Elements ---
+        const artContainer = document.getElementById('art-container');
+        const man = document.getElementById('man');
+        const headContainer = document.getElementById('head-container');
+        const textOverlay = document.getElementById('text-overlay');
+        const subHeadline = document.getElementById('sub-headline');
+        const head = document.getElementById('head');
+        const hat = document.getElementById('hat');
+        const eat = document.getElementById('eat');
+        const apple = document.getElementById('apple');
+        const particleContainer = document.getElementById('particle-container');
+        const wall = document.getElementById('wall');
+        const wallToggleBtn = document.getElementById('wall-toggle-btn');
+        const wallTextOverlay = document.getElementById('wall-text-overlay');
+
+
+        // --- Pendulum Physics Logic ---
+        let isDraggingMan = false, angle = 0, velocity = 0, targetAngle = 0;
+        let angleHistory = []; // For delayed movement
+        const spring = 0.005, damping = 0.985;
+        let pivotX, pivotY;
+
+        // --- Head Physics Logic (for secondary motion) ---
+        let headAngle = 0, headVelocity = 0;
+        const headSpring = 0.025;
+        const headDamping = 0.96;
+
+        // --- Particle Effect Logic ---
+        let particleIntervalId = null;
+
+        function createBiteEffect() {
+            const numParticles = 10 + Math.floor(Math.random() * 10); // 10 to 19 particles
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particleContainer.appendChild(particle);
+
+                // Position particles around the mouth area (behind the apple)
+                const startX = 48 + (Math.random() - 0.5) * 5; // % - Moved slightly left from 50
+                const startY = 40 + (Math.random() - 0.5) * 3; // % - Adjusted from 42 to raise particles
+                particle.style.left = `${startX}%`;
+                particle.style.top = `calc(${startY}% - 95px)`;
+
+                // Random direction and distance
+                const p_angle = Math.random() * Math.PI * 2;
+                const distance = 50 + Math.random() * 50; // pixels
+                const endX = Math.cos(p_angle) * distance;
+                const endY = Math.sin(p_angle) * distance;
+                
+                particle.style.setProperty('--x', `${endX}px`);
+                particle.style.setProperty('--y', `${endY}px`);
+
+                // Random duration
+                const duration = 0.5 + Math.random() * 0.5; // 0.5 to 1.0 seconds
+                particle.style.animation = `fly-out ${duration}s ease-out forwards`;
+
+                setTimeout(() => {
+                    particle.remove();
+                }, duration * 1000);
+            }
+        }
+
+
+        function updatePivot() {
+            const containerRect = artContainer.getBoundingClientRect();
+            pivotX = containerRect.left + containerRect.width / 2;
+            pivotY = containerRect.top + containerRect.height * 2.16;
+        }
+
+        function manDragStart(e) {
+            if(['man', 'head'].includes(e.target.id)) {
+                isDraggingMan = true;
+                e.target.style.cursor = 'grabbing';
+                velocity = 0;
+            }
+        }
+
+        function manDrag(e) {
+            if (!isDraggingMan) return;
+            e.preventDefault();
+            const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+            angle = Math.atan2((clientX - pivotX) * 0.6, -(clientY - pivotY));
+        }
+
+        function manDragEnd() {
+            if (isDraggingMan) {
+                isDraggingMan = false;
+                const originalTarget = document.querySelector('[style*="cursor: grabbing"]');
+                if (originalTarget) originalTarget.style.cursor = 'grab';
+            }
+        }
+
+        // --- Device Orientation (Gyroscope) Logic ---
+        function handleOrientation(event) {
+            const gamma = event.gamma || 0;
+            const clampedGamma = Math.max(-60, Math.min(60, gamma));
+            targetAngle = (clampedGamma / 60) * 0.7; // Map tilt to angle in radians
+        }
+
+        function requestMotionPermission() {
+            if (typeof DeviceMotionEvent?.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission().then(state => {
+                    if (state === 'granted') {
+                        window.addEventListener('deviceorientation', handleOrientation);
+                        document.getElementById('permission-request').style.display = 'none';
+                    }
+                }).catch(console.error);
+            } else {
+                // For non-iOS devices
+                window.addEventListener('deviceorientation', handleOrientation);
+            }
+        }
+
+        // Check if permission is needed (for iOS 13+)
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream && typeof DeviceMotionEvent?.requestPermission === 'function') {
+             document.getElementById('permission-request').style.display = 'block';
+             document.getElementById('permission-btn').addEventListener('click', requestMotionPermission);
+        } else {
+            window.addEventListener('deviceorientation', handleOrientation);
+        }
+
+        // --- Main Animation Loop ---
+        function animate() {
+            requestAnimationFrame(animate);
+            if (!isDraggingMan) {
+                const force = -spring * (angle - targetAngle);
+                velocity += force;
+                velocity *= damping;
+                angle += velocity;
+            }
+
+            const headForce = -headSpring * (headAngle - angle);
+            headVelocity += headForce;
+            headVelocity *= headDamping;
+            headAngle += headVelocity;
+
+            angleHistory.push(angle);
+            if (angleHistory.length > 25) { // הגדלת הדיליי לקבלת פיגור משמעותי יותר
+                angleHistory.shift();
+            }
+            const delayedAngle = angleHistory[0] || 0;
+
+            const rotationStyle = `rotate(${angle * (180 / Math.PI)}deg)`;
+            // הכותרת הראשית מסתובבת עם התנועה הנוכחית
+            const textRotationStyle = `rotate(${-angle * (180 / Math.PI)}deg)`;
+            
+            const wobbleAngle = headAngle - angle;
+            const wobbleRotationStyle = `rotate(${wobbleAngle * (180 / Math.PI) * 2.0}deg)`;
+
+            // תת-הכותרת מקבלת סיבוב יחסי שגורם לה לפגר, כך שהסיבוב הסופי שלה הוא לפי הזווית הישנה
+            const subHeadlineRelativeRotation = (angle - delayedAngle) * (180 / Math.PI);
+            const subHeadlineRotationStyle = `rotate(${subHeadlineRelativeRotation}deg)`;
+
+            man.style.transform = rotationStyle;
+            headContainer.style.transform = rotationStyle;
+            head.style.transform = wobbleRotationStyle;
+            hat.style.transform = wobbleRotationStyle;
+            eat.style.transform = wobbleRotationStyle;
+            textOverlay.style.transform = textRotationStyle;
+            wallTextOverlay.style.transform = textRotationStyle;
+            subHeadline.style.transform = subHeadlineRotationStyle;
+
+            // --- "EAT" Blinking, Apple Pulse & Particle Logic ---
+            const isAtRest = Math.abs(velocity) < 0.0005 && Math.abs(angle - targetAngle) < 0.01;
+            if (isAtRest) {
+                eat.classList.add('is-blinking');
+                apple.classList.add('is-pulsing');
+                // Start particle effect if not already running
+                if (!particleIntervalId) {
+                    createBiteEffect(); // Initial burst
+                    particleIntervalId = setInterval(createBiteEffect, 600); // Periodic bursts
+                }
+            } else {
+                eat.classList.remove('is-blinking');
+                apple.classList.remove('is-pulsing');
+                // Stop particle effect if it's running
+                if (particleIntervalId) {
+                    clearInterval(particleIntervalId);
+                    particleIntervalId = null;
+                }
+            }
+        }
+        
+        // --- Event Listeners & Initialization ---
+        window.addEventListener('load', () => {
+            textOverlay.style.opacity = 1;
+        });
+        
+        window.addEventListener('resize', updatePivot);
+        artContainer.addEventListener('mousedown', manDragStart);
+        artContainer.addEventListener('touchstart', manDragStart, { passive: false });
+        document.addEventListener('mousemove', manDrag);
+        document.addEventListener('touchmove', manDrag, { passive: false });
+        document.addEventListener('mouseup', manDragEnd);
+        document.addEventListener('touchend', manDragEnd);
+
+        wallToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent click from reaching the man
+            wall.classList.toggle('raised');
+        });
+
+        updatePivot();
+        animate();
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
