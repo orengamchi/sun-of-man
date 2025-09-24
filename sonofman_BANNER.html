@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>בן האנוש - אינטראקטיבי</title>
+    <!-- Preload critical images -->
+    <link rel="preload" href="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fapple.png?alt=media&token=85c0edb4-5d11-43fd-8ceb-88731253a828" as="image">
+    <link rel="preload" href="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fbg.png?alt=media&token=f527f9b1-3bc4-48e9-9af2-e7d6f42e72c0" as="image">
+    <link rel="preload" href="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fman.png?alt=media&token=8da1ff64-f319-49fa-91de-28ec3d5f4976" as="image">
+    <link rel="preload" href="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fhands.png?alt=media&token=61201388-702e-4999-86b3-771149f433bd" as="image">
+    <link rel="preload" href="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fwall%20move.png?alt=media&token=4fc1b1f6-acff-440b-a979-2d4b29e273c4" as="image">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gilda+Display&display=swap" rel="stylesheet">
+    <!-- Added new font -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Assistant', sans-serif;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            /* Center the art container */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f1f5f9; /* bg-slate-100 */
+        }
+        
+        #art-container {
+            position: relative;
+            width: 100%;
+            max-height: 100vh;
+            aspect-ratio: 600 / 757;
+            margin: 0 auto;
+            overflow: hidden;
+            background-color: #f0f0f0;
+            touch-action: none;
+        }
+
+        .layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+        
+        #man, #head, #hands { cursor: grab; }
+        #man:active, #head:active, #hands:active { cursor: grabbing; }
+
+        #head, #hat, #eat {
+            transform-origin: 50% 115%; /* Pivot from below the chin for an arc swing */
+        }
+
+        /* New container for the character */
+        #body-and-head-container {
+            z-index: 5;
+            transform-origin: 50% 216%;
+            pointer-events: none; /* Events pass through container */
+        }
+
+        #head-container {
+            z-index: 5; /* Above form */
+            pointer-events: none;
+        }
+        #head { pointer-events: auto; }
+        
+        #man { 
+            z-index: 2; /* Below hands */
+            pointer-events: auto; /* Man is draggable */
+            transition: opacity 0.5s ease-in-out; /* Smooth fade for man */
+        }
+        
+        #permission-request {
+            display: none; 
+            position: fixed; 
+            bottom: 20px;
+            left: 50%; 
+            transform: translateX(-50%); 
+            z-index: 2000;
+        }
+
+        #text-overlay {
+            z-index: 2; /* Behind the wall and man */
+            pointer-events: none; /* Allows clicks to pass through container */
+            display: flex;
+            align-items: center; /* Changed to center */
+            justify-content: center;
+            text-align: center;
+            line-height: 1.1;
+            color: white;
+            font-family: 'Gilda Display', serif; /* New font */
+            font-size: 3.8rem; /* Adjusted font size */
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
+            transform-origin: 50% 216%; /* Same pivot as the man for opposite swing */
+            opacity: 0; /* Initially hidden */
+            transition: opacity 0.5s ease-in-out; /* Smooth fade-in */
+        }
+
+        .sub-headline {
+            font-family: 'Assistant', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 400;
+            line-height: 1.2;
+            letter-spacing: 0.1em;
+            margin-top: 0.5rem;
+            display: block;
+        }
+
+        @keyframes blink-animation {
+          0%, 49.9% { opacity: 1; }
+          50%, 100% { opacity: 0; }
+        }
+
+        #eat {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #eat.is-blinking {
+            animation: blink-animation 0.3s infinite;
+        }
+        
+        /* Particle styles */
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #84cc16; /* Apple green */
+            border-radius: 50%;
+            opacity: 0; /* Start invisible */
+        }
+
+        .man-particle {
+             background-color: #334155; /* Man's suit color */
+        }
+
+        @keyframes fly-out {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                /* These vars are set by JS for random direction */
+                transform: translate(var(--x), var(--y)) scale(0);
+                opacity: 0;
+            }
+        }
+        
+        #wall {
+            transition: top 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        #wall.raised {
+            top: 25% !important; /* Covers 3/4 of the screen */
+        }
+
+        #wall-header {
+            z-index: 2; /* Behind the wall */
+            display: flex;
+            align-items: flex-start;
+            padding-top: 2%; /* Fine-tune vertical position */
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif; /* Changed font */
+            font-size: 5.85rem; /* Increased by 30% */
+            font-weight: 700;
+            color: #dfe3e8;
+            pointer-events: none;
+            top: -50%; /* Start off-screen */
+            transition: top 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+            animation: extrude-bevel-anim 4s infinite alternate;
+        }
+
+        @keyframes extrude-bevel-anim {
+            0% {
+                text-shadow: 
+                    /* Bevel Highlight (top-left) */
+                    -1px -1px 1px #fff,
+                    /* Extrusion (bottom-right) */
+                    1px 1px 0px #2c3e50,
+                    2px 2px 0px #2c3e50,
+                    3px 3px 0px #2c3e50,
+                    4px 4px 0px #2c3e50,
+                    /* Drop Shadow */
+                    5px 5px 10px rgba(0,0,0,0.5);
+            }
+            100% {
+                text-shadow: 
+                    /* Bevel Highlight (bottom-right) */
+                    1px 1px 1px #fff,
+                    /* Extrusion (top-left) */
+                    -1px -1px 0px #2c3e50,
+                    -2px -2px 0px #2c3e50,
+                    -3px -3px 0px #2c3e50,
+                    -4px -4px 0px #2c3e50,
+                     /* Drop Shadow */
+                    5px 5px 10px rgba(0,0,0,0.5);
+            }
+        }
+
+        #wall.raised ~ #wall-header {
+            top: calc(18% - 120px); /* Position just above the raised wall, raised by 120px */
+        }
+        
+        #wall-text-overlay {
+            z-index: 4; /* Above the wall (3), below the man (5) */
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.2;
+            font-family: 'Orbitron', sans-serif; /* Changed Font */
+            font-size: 2.8rem;
+            font-weight: 700;
+            transform-origin: 50% 216%; /* Same pivot as other text for swinging motion */
+            opacity: 0; /* Hidden by default */
+            transition: opacity 0.8s ease-in-out 0.5s; /* Smooth fade-in with a delay */
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #00ffff);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: animated-bevel 2s infinite alternate, gradient-flow 4s infinite linear;
+        }
+        
+        @keyframes animated-bevel {
+          0% {
+            text-shadow:
+              /* Glows */
+              0 0 2px rgba(255, 255, 255, 0.7),
+              0 0 8px #00ffff,
+              0 0 18px #00ffff,
+              /* Extrusion */
+              1px 1px 0 #0d7b7b, 2px 2px 0 #0d7b7b, 3px 3px 0 #0d7b7b, 4px 4px 0 #0d7b7b, 5px 5px 0 #0d7b7b,
+              /* Drop Shadow */
+              6px 6px 10px rgba(0, 0, 0, 0.5);
+          }
+          100% {
+            text-shadow:
+              /* Glows */
+              0 0 2px rgba(255, 255, 255, 0.7),
+              0 0 8px #ff00ff,
+              0 0 18px #ff00ff,
+              /* Extrusion */
+              1px 1px 0 #7a0d7a, 2px 2px 0 #7a0d7a, 3px 3px 0 #7a0d7a, 4px 4px 0 #7a0d7a, 5px 5px 0 #7a0d7a,
+              /* Drop Shadow */
+              6px 6px 10px rgba(0, 0, 0, 0.5);
+          }
+        }
+        
+        @keyframes gradient-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #wall.raised ~ #wall-text-overlay {
+            opacity: 1;
+        }
+
+        #wall-toggle-btn {
+            z-index: 10; /* Adjusted z-index */
+            position: absolute;
+            top: calc(25% + 15px);
+            left: calc(49.5% - 15px);
+            width: 35px;
+            height: 35px;
+            background-color: transparent; /* Make button invisible */
+            border: none; /* Remove border */
+            border-radius: 50%;
+            /* Custom PUSH cursor, URL-encoded SVG */
+            cursor: url("data:image/svg+xml,<svg width='70' height='25' xmlns='http://www.w3.org/2000/svg'><text x='35' y='18' font-family='Orbitron, sans-serif' font-weight='700' font-size='18px' text-anchor='middle' fill='white' stroke='black' stroke-width='0.5'>PUSH</text></svg>"), auto;
+            transform: translate(-50%, -50%);
+        }
+
+        #wall-toggle-btn:hover {
+             background-color: transparent; /* Ensure it stays invisible on hover */
+        }
+
+        /* Apple pulse animation */
+        @keyframes apple-pulse {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.1);
+          }
+        }
+
+        #apple.is-pulsing {
+          animation: apple-pulse 1.2s infinite ease-in-out;
+        }
+
+        #portfolio-buttons-container {
+            z-index: 11; /* Adjusted z-index */
+            pointer-events: none; /* Let clicks pass through the container itself */
+        }
+
+        .portfolio-btn {
+            position: absolute;
+            top: calc(25% + 150px); /* Lowered */
+            width: 80px;
+            height: 80px;
+            background-color: rgba(51, 65, 85, 0.75); /* slate-700 with transparency */
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none; /* Buttons are not clickable by default */
+            transform: translate(-50%, calc(-50% + 20px)); /* Start lower */
+            transition: opacity 0.4s ease-out 0.7s, transform 0.4s ease-out 0.7s; /* Delayed fade and slide-in */
+        }
+
+        .portfolio-btn:hover {
+            transform: translate(-50%, -50%) scale(1.1); /* On hover, move to final position and scale */
+            background-color: rgba(30, 41, 59, 0.9);
+            border-color: white;
+        }
+
+        #left-portfolio-btn {
+            left: 22%; /* Moved further left */
+        }
+
+        #right-portfolio-btn {
+            left: 78%; /* Moved further right */
+        }
+
+        /* Use general sibling combinator to show buttons when wall is raised */
+        #wall.raised ~ #portfolio-buttons-container .portfolio-btn {
+            opacity: 1;
+            pointer-events: auto; /* Make them clickable */
+            transform: translate(-50%, -50%); /* Slide into final position */
+        }
+
+        /* Arrow Indicator Styles */
+        #arrow-indicator {
+            position: absolute;
+            top: 50%; /* Centered vertically */
+            left: 50%; /* Centered horizontally */
+            width: 75%; /* Increased size by 1.5x */
+            height: auto;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 10; /* Adjusted z-index */
+            transform-origin: 0% 50%; /* Pivot from the left center (base) */
+            transform: translateY(-50%) rotate(90deg); /* Position base at center and rotate */
+            transition: opacity 0.5s ease-in-out 0.5s; /* Smooth fade-in */
+        }
+
+        #wall.raised ~ #arrow-indicator {
+            opacity: 1; /* Show the arrow */
+        }
+
+        /* Lamp and Lens Flare Styles */
+        #lamp-fx {
+            position: absolute;
+            top: calc(41.5% - 2cm - 110px);
+            left: calc(50% - 25px);
+            width: 53px;
+            height: 53px;
+            transform: translateX(-50%);
+            pointer-events: none;
+            z-index: 1; /* Behind man and hands */
+            --light-intensity: 1.0; /* Custom property for brightness */
+            --flare-hue: 60; /* Initial hue (yellow) */
+            --flare-saturation: 50%; /* Initial saturation */
+            --sparkle-intensity: 0;
+        }
+
+        #lamp-fx::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, hsla(var(--flare-hue), var(--flare-saturation), 95%, var(--light-intensity)) 0%, hsla(var(--flare-hue), var(--flare-saturation), 90%, 0) 50%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse-glow 2.5s infinite ease-in-out;
+        }
+
+        #lamp-fx::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 500%;
+            height: 500%;
+            background:
+                radial-gradient(ellipse at center, hsla(var(--flare-hue), var(--flare-saturation), 90%, calc(0.7 * var(--light-intensity))) 0%, transparent 4%),
+                radial-gradient(circle at 45% 45%, hsla(calc(var(--flare-hue) + 60), var(--flare-saturation), 85%, calc(0.3 * var(--light-intensity))) 5%, transparent 10%),
+                radial-gradient(circle at 55% 55%, hsla(calc(var(--flare-hue) - 60), var(--flare-saturation), 85%, calc(0.3 * var(--light-intensity))) 5%, transparent 10%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: flicker-flare 4s infinite alternate;
+            opacity: var(--light-intensity);
+        }
+        
+        #sun-effect-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200px;
+            height: 200px;
+            transform: translate(-50%, -50%);
+            opacity: var(--sparkle-intensity);
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        #sun-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px white, 0 0 20px white, 0 0 30px hsla(var(--flare-hue), 100%, 80%, 1);
+        }
+
+        #sun-rays {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            animation: sun-ray-spin 10s linear infinite;
+        }
+
+        .sun-ray {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, hsla(var(--flare-hue), 100%, 90%, 0.7) 40%, hsla(var(--flare-hue), 100%, 90%, 0.7) 60%, transparent);
+            transform-origin: center;
+            transform: translateX(-50%);
+        }
+
+        .sun-ray:nth-child(2) { transform: translateX(-50%) rotate(45deg); }
+        .sun-ray:nth-child(3) { transform: translateX(-50%) rotate(90deg); }
+        .sun-ray:nth-child(4) { transform: translateX(-50%) rotate(135deg); }
+
+        @keyframes sun-ray-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+
+        @keyframes pulse-glow {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(0.9);
+                box-shadow: 0 0 calc(90px * var(--light-intensity)) calc(40px * var(--light-intensity)) hsla(var(--flare-hue), var(--flare-saturation), 90%, calc(0.95 * var(--light-intensity)));
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.1);
+                box-shadow: 0 0 calc(160px * var(--light-intensity)) calc(80px * var(--light-intensity)) hsla(var(--flare-hue), var(--flare-saturation), 90%, var(--light-intensity));
+            }
+        }
+
+        @keyframes flicker-flare {
+            from {
+                opacity: calc(0.7 * var(--light-intensity));
+                transform: translate(-50%, -50%) rotate(-5deg) scale(0.95);
+            }
+            to {
+                opacity: var(--light-intensity);
+                transform: translate(-50%, -50%) rotate(5deg) scale(1.05);
+            }
+        }
+
+        /* Hands Layer Style */
+        #hands {
+            opacity: 0;
+            z-index: 3; /* Above man, below head */
+            pointer-events: none;
+            transition: opacity 0.8s ease-in-out 0.5s; /* Fade in with a delay */
+        }
+
+        #wall.raised ~ #body-and-head-container #man {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out 0.8s; /* Delay the fade out */
+        }
+        
+        #wall.raised ~ #body-and-head-container #hands {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Contact Form Styles */
+        #contact-form-container {
+            z-index: 4; /* Above hands, below head */
+            top: 65%;
+            left: 26%;
+            width: 48%;
+            height: 24%;
+            font-family: 'Assistant', sans-serif;
+            color: #334155; /* slate-700 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s ease-in-out 1s; /* Delayed fade in */
+        }
+        
+        #wall.raised ~ #body-and-head-container #contact-form-container {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .contact-content {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem; /* Space between items */
+        }
+        
+        .contact-content h3 {
+            font-family: 'Gilda Display', serif;
+            font-size: 1.6rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.1em;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .contact-item a {
+            font-size: 1.2rem;
+            text-decoration: none;
+            color: #334155;
+            transition: color 0.2s;
+        }
+
+        .contact-item a:hover {
+            color: #0ea5e9; /* sky-500 */
+        }
+
+        .contact-item svg {
+            width: 24px;
+            height: 24px;
+            fill: #64748b; /* slate-500 */
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem; /* Adjusted gap */
+            margin-top: 1rem;
+        }
+
+        .social-links a svg {
+            width: 28px;
+            height: 28px;
+            fill: #475569; /* slate-600 */
+            transition: fill 0.2s, transform 0.2s;
+        }
+
+        .social-links a:hover svg {
+            fill: #0ea5e9;
+            transform: scale(1.1);
+        }
+
+        /* --- Styles for Falling Men --- */
+        #falling-men-container {
+            z-index: 2;
+            perspective: 1000px;
+            pointer-events: none;
+        }
+
+        .falling-man {
+            position: absolute;
+            top: -20%; /* Start above screen */
+            transform-style: preserve-3d;
+            animation: fall linear forwards;
+            pointer-events: auto;
+            cursor: url("data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg'%3E%3Cstyle%3E.ring%7Banimation:rotate 4s linear infinite;transform-origin:center%7D@keyframes rotate%7Bto%7Btransform:rotate(360deg)%7D%7D%3C/style%3E%3Cg fill='none' stroke='cyan' stroke-width='1.5'%3E%3Ccircle cx='16' cy='16' r='14' opacity='0.5'/%3E%3Ccircle cx='16' cy='16' r='10' class='ring' stroke-dasharray='10 50'/%3E%3Cline x1='16' y1='4' x2='16' y2='10' /%3E%3Cline x1='16' y1='22' x2='16' y2='28' /%3E%3Cline x1='4' y1='16' x2='10' y2='16' /%3E%3Cline x1='22' y1='16' x2='28' y2='16' /%3E%3C/g%3E%3C/svg%3E") 16 16, pointer;
+        }
+
+        .falling-man-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: spin linear infinite;
+        }
+
+        .falling-man-inner img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .falling-man-back {
+            transform: rotateY(180deg);
+        }
+
+        @keyframes fall {
+            to {
+                top: 120%; /* Fall below screen */
+            }
+        }
+
+        @keyframes spin {
+            from { transform: rotateY(0deg) scaleX(2.0); }
+            to { transform: rotateY(360deg) scaleX(2.0); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="art-container">
+        <img id="bg" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fbg.png?alt=media&token=f527f9b1-3bc4-48e9-9af2-e7d6f42e72c0" alt="רקע" class="layer" style="z-index: 1; pointer-events: none;">
+        
+        <div id="falling-men-container" class="layer"></div>
+
+        <div id="text-overlay" class="layer">
+            <div>
+                <span>OREN<br>GAMCHI</span>
+                <span class="sub-headline" id="sub-headline">TECHNICAL<br>ARTIST</span>
+            </div>
+        </div>
+
+        <img id="wall" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fwall%20move.png?alt=media&token=4fc1b1f6-acff-440b-a979-2d4b29e273c4" alt="קיר" class="layer" style="z-index: 3; pointer-events: none; top: 76%;">
+
+        <img id="arrow-indicator" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Farrow.png?alt=media&token=03fcdee4-afc7-41ea-93ee-4dc2d20ee9bb" alt="חץ" class="layer">
+
+        <div id="wall-header" class="layer">
+            <span>DAFkaze</span>
+        </div>
+
+        <div id="wall-text-overlay" class="layer">
+            <span>VISIT MY<br>WEBSITE</span>
+        </div>
+
+        <div id="body-and-head-container" class="layer">
+            <div id="lamp-fx" class="layer">
+                <div id="sun-effect-container">
+                    <div id="sun-core"></div>
+                    <div id="sun-rays">
+                        <div class="sun-ray"></div>
+                        <div class="sun-ray"></div>
+                        <div class="sun-ray"></div>
+                        <div class="sun-ray"></div>
+                    </div>
+                </div>
+            </div>
+            <img id="man" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fman.png?alt=media&token=8da1ff64-f319-49fa-91de-28ec3d5f4976" alt="איש" class="layer">
+            <img id="hands" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fhands.png?alt=media&token=61201388-702e-4999-86b3-771149f433bd" alt="ידיים" class="layer">
+            
+            <div id="contact-form-container" class="layer">
+                <div class="contact-content">
+                    <h3>GET IN TOUCH</h3>
+                    <div class="contact-item">
+                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6.62,10.79C8.06,13.62 10.38,15.94 13.21,17.38L15.41,15.18C15.69,14.9 16.08,14.82 16.43,14.93C17.55,15.3 18.75,15.5 20,15.5A1,1 0 0,1 21,16.5V20A1,1 0 0,1 20,21A17,17 0 0,1 3,4A1,1 0 0,1 4,3H7.5A1,1 0 0,1 8.5,4C8.5,5.25 8.7,6.45 9.07,7.57C9.18,7.92 9.1,8.31 8.82,8.59L6.62,10.79Z"/></svg>
+                        <a href="tel:0523034888">052-303-4888</a>
+                    </div>
+                    <div class="contact-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,16.5C11,16.5 10,16.5 10,17C10,17.5 11,17.5 11,17.5V19H9V16C9,15.5 10,15.5 10,15.5C10,15.5 11,15.5 11,15V13H9V11H11V8.5C11,8.5 11,7.5 10,7.5C9,7.5 9,8.5 9,8.5V10H7V8C7,7 8,6 10,6C12,6 13,7 13,8V10H15V12H13V15C13,15.5 14,15.5 14,15.5C14,15.5 15,15.5 15,16V17.5H13V16.5C13,16.5 14,16.5 14,16C14,15.5 13,15.5 13,15.5V13H11V16.5Z"/></svg>
+                        <a href="https://DAFKAZE.COM" target="_blank">DAFKAZE.COM</a>
+                    </div>
+                    <div class="contact-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4M20 18H4V8L12 13L20 8V18M12 11L4 6H20L12 11Z"/></svg>
+                        <a href="mailto:ORENREDE@GMAIL.COM">ORENREDE@GMAIL.COM</a>
+                    </div>
+                    <div class="social-links">
+                        <a href="https://www.linkedin.com/in/oren-gamchi/" target="_blank" title="LinkedIn">
+                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 3A2 2 0 0 1 21 5V19A2 2 0 0 1 19 21H5A2 2 0 0 1 3 19V5A2 2 0 0 1 5 3H19M18.5 18.5V13.2A3.26 3.26 0 0 0 15.24 9.94C14.39 9.94 13.4 10.46 12.92 11.24V10.13H10.13V18.5H12.92V13.57C12.92 12.8 13.54 12.17 14.31 12.17A1.4 1.4 0 0 1 15.71 13.57V18.5H18.5M6.88 8.56A1.68 1.68 0 0 0 8.56 6.88C8.56 6 8 5.44 7.19 5.44C6.38 5.44 5.81 6 5.81 6.88A1.68 1.68 0 0 0 6.88 8.56M8.27 18.5V10.13H5.5V18.5H8.27Z"/></svg>
+                        </a>
+                        <a href="https://www.artstation.com/orengamchi" target="_blank" title="ArtStation">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M1.3,13.2L12,2L22.7,13.2L19.8,18.1H4.2L1.3,13.2M13,16.9H16.8L18,14.8L12,5.2L6,14.8L7.2,16.9H11V15.7H8.3L12,9.3L15.7,15.7H13V16.9Z"/></svg>
+                        </a>
+                        <a href="https://github.com/orengamchi" target="_blank" title="GitHub">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.1.39-1.99 1.03-2.69a3.6 3.6 0 0 1 .1-2.64s.84-.27 2.75 1.02a9.58 9.58 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.4.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 22 12C22 6.48 17.52 2 12 2Z"/></svg>
+                        </a>
+                        <a href="https://www.facebook.com/oren.gamchi" target="_blank" title="Facebook">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2.04C6.5 2.04 2 6.53 2 12.06c0 5.52 4.5 10.02 10 10.02 5.5 0 10-4.5 10-10.02C22 6.53 17.5 2.04 12 2.04M16.5 8.25h-1.88c-.56 0-.67.27-.67.66v1.25h2.5L16 12.5h-2v5h-2.5v-5h-2V10.2h2V8.8c0-2 1.22-3.1 3-3.1h2.3v2.25Z"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div id="head-container" class="layer">
+                <img id="head" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fhead.png?alt=media&token=b2516d34-8a4d-4b6f-87fe-0540de7260bb" alt="ראש" class="layer">
+                <img id="hat" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fhat.png?alt=media&token=d71697e7-7ef1-478d-9cd9-8679d75e3bad" alt="כובע" class="layer" style="pointer-events: none;">
+                <img id="eat" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Feat.png?alt=media&token=4b5bcb6b-2487-4b1c-b0f2-fae65eb72b97" alt="eat" class="layer">
+            </div>
+        </div>
+        
+        <div id="particle-container" class="layer" style="z-index: 8; pointer-events: none;"></div>
+
+        <img id="apple" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fapple.png?alt=media&token=85c0edb4-5d11-43fd-8ceb-88731253a828" alt="תפוח" class="layer" style="z-index: 9; pointer-events: none;">
+
+        <button id="wall-toggle-btn" class="layer"></button>
+
+        <div id="portfolio-buttons-container" class="layer">
+             <a href="https://studio--portfolioflow-8qrng.us-central1.hosted.app/" target="_blank" id="left-portfolio-btn" class="portfolio-btn">
+                 AI
+             </a>
+             <a href="https://studio--portfolioflow-8qrng.us-central1.hosted.app/about" target="_blank" id="right-portfolio-btn" class="portfolio-btn">
+                 HR
+             </a>
+        </div>
+
+    </div>
+    
+    <div id="permission-request">
+        <button id="permission-btn" class="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-indigo-700 transition-colors text-base">
+            הפעל חיישני תנועה
+        </button>
+    </div>
+
+    <script type="module">
+        // --- Elements ---
+        const artContainer = document.getElementById('art-container');
+        const bodyAndHeadContainer = document.getElementById('body-and-head-container');
+        const man = document.getElementById('man');
+        const hands = document.getElementById('hands');
+        const headContainer = document.getElementById('head-container');
+        const lampFx = document.getElementById('lamp-fx');
+        const textOverlay = document.getElementById('text-overlay');
+        const subHeadline = document.getElementById('sub-headline');
+        const head = document.getElementById('head');
+        const hat = document.getElementById('hat');
+        const eat = document.getElementById('eat');
+        const apple = document.getElementById('apple');
+        const particleContainer = document.getElementById('particle-container');
+        const wall = document.getElementById('wall');
+        const wallToggleBtn = document.getElementById('wall-toggle-btn');
+        const wallTextOverlay = document.getElementById('wall-text-overlay');
+        const fallingMenContainer = document.getElementById('falling-men-container');
+
+        // --- Preload Images ---
+        const imageUrls = [
+            'https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fman%20front.png?alt=media&token=a8697195-2c8c-4235-961d-72124578b9e6',
+            'https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fman_back.png?alt=media&token=c2c10156-3c46-4b67-8f55-1f91b7d8d21a'
+        ];
+        imageUrls.forEach(url => {
+            const img = new Image();
+            img.src = url;
+        });
+
+
+        // --- Pendulum Physics Logic ---
+        let isDraggingMan = false, angle = 0, velocity = 0, targetAngle = 0;
+        let angleHistory = []; // For delayed movement
+        const spring = 0.005, damping = 0.985;
+        let pivotX, pivotY;
+
+        // --- Head Physics Logic (for secondary motion) ---
+        let headAngle = 0, headVelocity = 0;
+        const headSpring = 0.025;
+        const headDamping = 0.96;
+
+        // --- Particle Effect Logic ---
+        let particleIntervalId = null;
+
+        function createBiteEffect() {
+            const numParticles = 10 + Math.floor(Math.random() * 10); // 10 to 19 particles
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particleContainer.appendChild(particle);
+
+                // Position particles around the mouth area (behind the apple)
+                const startX = 48 + (Math.random() - 0.5) * 5; // % - Moved slightly left from 50
+                const startY = 40 + (Math.random() - 0.5) * 3; // % - Adjusted from 42 to raise particles
+                particle.style.left = `${startX}%`;
+                particle.style.top = `calc(${startY}% - 95px)`;
+
+                // Random direction and distance
+                const p_angle = Math.random() * Math.PI * 2;
+                const distance = 50 + Math.random() * 50; // pixels
+                const endX = Math.cos(p_angle) * distance;
+                const endY = Math.sin(p_angle) * distance;
+                
+                particle.style.setProperty('--x', `${endX}px`);
+                particle.style.setProperty('--y', `${endY}px`);
+
+                // Random duration
+                const duration = 0.5 + Math.random() * 0.5; // 0.5 to 1.0 seconds
+                particle.style.animation = `fly-out ${duration}s ease-out forwards`;
+
+                setTimeout(() => {
+                    particle.remove();
+                }, duration * 1000);
+            }
+        }
+
+
+        function updatePivot() {
+            const containerRect = artContainer.getBoundingClientRect();
+            pivotX = containerRect.left + containerRect.width / 2;
+            pivotY = containerRect.top + containerRect.height * 2.16;
+        }
+
+        function manDragStart(e) {
+            if(['man', 'head', 'hands'].includes(e.target.id)) {
+                isDraggingMan = true;
+                e.target.style.cursor = 'grabbing';
+                velocity = 0;
+            }
+        }
+
+        function manDrag(e) {
+            if (!isDraggingMan) return;
+            e.preventDefault();
+            const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+            angle = Math.atan2((clientX - pivotX) * 0.6, -(clientY - pivotY));
+        }
+
+        function manDragEnd() {
+            if (isDraggingMan) {
+                isDraggingMan = false;
+                const originalTarget = document.querySelector('[style*="cursor: grabbing"]');
+                if (originalTarget) originalTarget.style.cursor = 'grab';
+            }
+        }
+
+        // --- Device Orientation (Gyroscope) Logic ---
+        function handleOrientation(event) {
+            const gamma = event.gamma || 0;
+            const clampedGamma = Math.max(-60, Math.min(60, gamma));
+            targetAngle = (clampedGamma / 60) * 0.7; // Map tilt to angle in radians
+        }
+
+        function requestMotionPermission() {
+            if (typeof DeviceMotionEvent?.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission().then(state => {
+                    if (state === 'granted') {
+                        window.addEventListener('deviceorientation', handleOrientation);
+                        document.getElementById('permission-request').style.display = 'none';
+                    }
+                }).catch(console.error);
+            } else {
+                // For non-iOS devices
+                window.addEventListener('deviceorientation', handleOrientation);
+            }
+        }
+
+        // Check if permission is needed (for iOS 13+)
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream && typeof DeviceMotionEvent?.requestPermission === 'function') {
+             document.getElementById('permission-request').style.display = 'block';
+             document.getElementById('permission-btn').addEventListener('click', requestMotionPermission);
+        } else {
+            window.addEventListener('deviceorientation', handleOrientation);
+        }
+
+        // --- Falling Men Logic ---
+        function createFallingMan(isBackground = false) {
+            const manContainer = document.createElement('div');
+            manContainer.className = 'falling-man';
+
+            const innerSpinner = document.createElement('div');
+            innerSpinner.className = 'falling-man-inner';
+
+            const frontImg = document.createElement('img');
+            frontImg.src = imageUrls[0];
+            
+            const backImg = document.createElement('img');
+            backImg.src = imageUrls[1];
+            backImg.className = 'falling-man-back';
+
+            innerSpinner.append(frontImg, backImg);
+            manContainer.appendChild(innerSpinner);
+
+            // Set properties based on whether it's a background element
+            manContainer.style.zIndex = isBackground ? '1' : '2';
+
+            const size = (isBackground ? 3 + Math.random() * 4 : 6 + Math.random() * 7) * 1.3;
+            const aspectRatio = 288 / 757;
+            manContainer.style.width = `${size}%`;
+            manContainer.style.height = `calc(${size}% / ${aspectRatio})`;
+
+            manContainer.style.left = `${Math.random() * 95}%`;
+            
+            let fallDuration;
+            const baseSpeed = isBackground ? 20 : 10;
+            const randomSpeed = isBackground ? 15 : 10;
+             if (Math.random() < 0.3 && !isBackground) { // Only foreground can be extra fast
+                fallDuration = 5 + Math.random() * 5;
+            } else {
+                fallDuration = baseSpeed + Math.random() * randomSpeed;
+            }
+            manContainer.style.animationName = 'fall';
+            manContainer.style.animationDuration = `${fallDuration}s`;
+            
+            manContainer.style.opacity = isBackground ? 0.7 : 1.0;
+            manContainer.style.filter = isBackground ? 'blur(1px)' : 'none';
+
+            const spinDuration = 2 + Math.random() * 6;
+            innerSpinner.style.animationName = 'spin';
+            innerSpinner.style.animationDuration = `${spinDuration}s`;
+            
+            fallingMenContainer.appendChild(manContainer);
+
+            manContainer.addEventListener('animationend', () => {
+                manContainer.remove();
+            });
+        }
+        
+        function startFallingMenFG() {
+            createFallingMan(false);
+            setTimeout(startFallingMenFG, Math.random() * 1500 + 500);
+        }
+
+        function startFallingMenBG() {
+            createFallingMan(true);
+            setTimeout(startFallingMenBG, Math.random() * 1500 + 500);
+        }
+
+        // --- Main Animation Loop ---
+        function animate() {
+            requestAnimationFrame(animate);
+            if (!isDraggingMan) {
+                const force = -spring * (angle - targetAngle);
+                velocity += force;
+                velocity *= damping;
+                angle += velocity;
+            }
+
+            const headForce = -headSpring * (headAngle - angle);
+            headVelocity += headForce;
+            headVelocity *= headDamping;
+            headAngle += headVelocity;
+
+            const isAtRest = Math.abs(velocity) < 0.0005 && Math.abs(angle - targetAngle) < 0.01;
+
+            // --- Lamp Intensity & Color Logic ---
+            if (isAtRest) {
+                // When stopped, return to a weak, white light
+                lampFx.style.setProperty('--light-intensity', '0.7');
+                lampFx.style.setProperty('--flare-hue', '55'); // Yellowish-white
+                lampFx.style.setProperty('--flare-saturation', '40%');
+                lampFx.style.setProperty('--sparkle-intensity', '0');
+
+            } else {
+                // When moving, use the dynamic, colorful effect
+                const intensityMultiplier = 20;
+                // baseIntensity goes from 0.2 (fast) to 1.0 (approaching stop)
+                let baseIntensity = 1 - Math.min(1, Math.abs(velocity) * intensityMultiplier);
+                baseIntensity = Math.max(0.2, baseIntensity);
+
+                // Calculate tension based on how far from center the swing is (assuming max swing of ~0.7 rad)
+                const tension = Math.min(1.0, Math.abs(angle) / 0.7);
+
+                // When velocity is low (at the peak of the swing) and tension is high, create a spike.
+                const spike = baseIntensity * tension * 3.0; // Adds up to 3.0 to the intensity
+                let finalIntensity = Math.min(4.0, baseIntensity + spike); // Cap at 4x
+
+                lampFx.style.setProperty('--light-intensity', finalIntensity);
+                
+                const sparkleIntensity = Math.min(1.0, spike / 2.0); // Normalize spike for sparkle opacity
+                lampFx.style.setProperty('--sparkle-intensity', sparkleIntensity);
+
+
+                // Create a rapid, rhythmic color change based on time and swing position
+                const rhythmicHue = (performance.now() / 15 + angle * 200) % 360;
+                // Make saturation vibrant, especially at high intensity
+                const flareSaturation = 70 + (finalIntensity / 4) * 30; // From 70% to 100%
+
+                lampFx.style.setProperty('--flare-hue', rhythmicHue);
+                lampFx.style.setProperty('--flare-saturation', `${flareSaturation}%`);
+            }
+
+
+            angleHistory.push(angle);
+            if (angleHistory.length > 25) { 
+                angleHistory.shift();
+            }
+            const delayedAngle = angleHistory[0] || 0;
+
+            const rotationStyle = `rotate(${angle * (180 / Math.PI)}deg)`;
+            const textRotationStyle = `rotate(${-angle * (180 / Math.PI)}deg)`;
+            
+            const wobbleAngle = headAngle - angle;
+            const wobbleRotationStyle = `rotate(${wobbleAngle * (180 / Math.PI) * 2.0}deg)`;
+
+            const subHeadlineRelativeRotation = (angle - delayedAngle) * (180 / Math.PI);
+            const subHeadlineRotationStyle = `rotate(${subHeadlineRelativeRotation}deg)`;
+
+            bodyAndHeadContainer.style.transform = rotationStyle;
+            head.style.transform = wobbleRotationStyle;
+            hat.style.transform = wobbleRotationStyle;
+            eat.style.transform = wobbleRotationStyle;
+            textOverlay.style.transform = textRotationStyle;
+            wallTextOverlay.style.transform = textRotationStyle;
+            subHeadline.style.transform = subHeadlineRotationStyle;
+
+            // --- "EAT" Blinking, Apple Pulse & Particle Logic ---
+            if (isAtRest) {
+                eat.classList.add('is-blinking');
+                apple.classList.add('is-pulsing');
+                if (!particleIntervalId) {
+                    createBiteEffect(); 
+                    particleIntervalId = setInterval(createBiteEffect, 600);
+                }
+            } else {
+                eat.classList.remove('is-blinking');
+                apple.classList.remove('is-pulsing');
+                if (particleIntervalId) {
+                    clearInterval(particleIntervalId);
+                    particleIntervalId = null;
+                }
+            }
+        }
+        
+        // --- Event Listeners & Initialization ---
+        window.addEventListener('load', () => {
+            textOverlay.style.opacity = 1;
+            // Delay the start of the falling men animation
+            setTimeout(() => {
+                startFallingMenFG();
+                startFallingMenBG();
+            }, 5000); 
+        });
+        
+        window.addEventListener('resize', updatePivot);
+        man.addEventListener('mousedown', manDragStart);
+        head.addEventListener('mousedown', manDragStart);
+        hands.addEventListener('mousedown', manDragStart);
+        man.addEventListener('touchstart', manDragStart, { passive: false });
+        head.addEventListener('touchstart', manDragStart, { passive: false });
+        hands.addEventListener('touchstart', manDragStart, { passive: false });
+        document.addEventListener('mousemove', manDrag);
+        document.addEventListener('touchmove', manDrag, { passive: false });
+        document.addEventListener('mouseup', manDragEnd);
+        document.addEventListener('touchend', manDragEnd);
+
+        wallToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent click from reaching the man
+            wall.classList.toggle('raised');
+        });
+
+        updatePivot();
+        animate();
+    </script>
+</body>
+</html>
+
