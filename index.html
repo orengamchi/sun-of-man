@@ -1014,14 +1014,14 @@
         
         function startFallingMenFG() {
             createFallingMan(false);
-            // OPTIMIZATION: Increased delay between creations (halved the frequency)
-            setTimeout(startFallingMenFG, Math.random() * 3000 + 2000);
+            // OPTIMIZATION: Increased delay again (halved the frequency further)
+            setTimeout(startFallingMenFG, Math.random() * 6000 + 4000);
         }
 
         function startFallingMenBG() {
             createFallingMan(true);
-            // OPTIMIZATION: Increased delay between creations (halved the frequency)
-            setTimeout(startFallingMenBG, Math.random() * 3000 + 2000);
+            // OPTIMIZATION: Increased delay again (halved the frequency further)
+            setTimeout(startFallingMenBG, Math.random() * 6000 + 4000);
         }
 
         // --- Main Animation Loop ---
