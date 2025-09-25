@@ -844,7 +844,10 @@
         // --- Pendulum Physics Logic ---
         let isDraggingMan = false, angle = 0, velocity = 0, targetAngle = 0;
         let angleHistory = []; // For delayed movement
-        const spring = 0.005, damping = 0.985;
+        // TUNING: Adjusted physics for a more responsive and fluid feel
+        const spring = 0.007; // Increased for faster reaction
+        const damping = 0.98; // Decreased for more swing
+
         let pivotX, pivotY;
 
         // --- Head Physics Logic (for secondary motion) ---
@@ -926,7 +929,8 @@
         function handleOrientation(event) {
             const gamma = event.gamma || 0;
             const clampedGamma = Math.max(-60, Math.min(60, gamma));
-            targetAngle = (clampedGamma / 60) * 0.7; // Map tilt to angle in radians
+            // TUNING: Increased multiplier for a wider, more noticeable swing range
+            targetAngle = (clampedGamma / 60) * 0.8;
         }
 
         function requestMotionPermission() {
