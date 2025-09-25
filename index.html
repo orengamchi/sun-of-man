@@ -646,6 +646,10 @@
 
         /* --- Mobile Optimizations Reset --- */
         @media (max-width: 640px) {
+             #art-container {
+                transform: scaleX(1.2); /* Stretch horizontally by 20% */
+            }
+
             #falling-men-container {
                 display: none;
             }
@@ -1037,41 +1041,43 @@
 
             const isAtRest = Math.abs(velocity) < 0.0005 && Math.abs(angle - targetAngle) < 0.01;
 
-            // --- Lamp Intensity & Color Logic ---
-            if (isAtRest) {
-                // When stopped, return to a weak, white light
-                lampFx.style.setProperty('--light-intensity', '0.7');
-                lampFx.style.setProperty('--flare-hue', '55'); // Yellowish-white
-                lampFx.style.setProperty('--flare-saturation', '40%');
-                lampFx.style.setProperty('--sparkle-intensity', '0');
+            // --- Lamp Intensity & Color Logic (for non-mobile) ---
+            if (window.innerWidth > 640) {
+                if (isAtRest) {
+                    // When stopped, return to a weak, white light
+                    lampFx.style.setProperty('--light-intensity', '0.7');
+                    lampFx.style.setProperty('--flare-hue', '55'); // Yellowish-white
+                    lampFx.style.setProperty('--flare-saturation', '40%');
+                    lampFx.style.setProperty('--sparkle-intensity', '0');
 
-            } else {
-                // When moving, use the dynamic, colorful effect
-                const intensityMultiplier = 20;
-                // baseIntensity goes from 0.2 (fast) to 1.0 (approaching stop)
-                let baseIntensity = 1 - Math.min(1, Math.abs(velocity) * intensityMultiplier);
-                baseIntensity = Math.max(0.2, baseIntensity);
+                } else {
+                    // When moving, use the dynamic, colorful effect
+                    const intensityMultiplier = 20;
+                    // baseIntensity goes from 0.2 (fast) to 1.0 (approaching stop)
+                    let baseIntensity = 1 - Math.min(1, Math.abs(velocity) * intensityMultiplier);
+                    baseIntensity = Math.max(0.2, baseIntensity);
 
-                // Calculate tension based on how far from center the swing is (assuming max swing of ~0.7 rad)
-                const tension = Math.min(1.0, Math.abs(angle) / 0.7);
+                    // Calculate tension based on how far from center the swing is (assuming max swing of ~0.7 rad)
+                    const tension = Math.min(1.0, Math.abs(angle) / 0.7);
 
-                // When velocity is low (at the peak of the swing) and tension is high, create a spike.
-                const spike = baseIntensity * tension * 3.0; // Adds up to 3.0 to the intensity
-                let finalIntensity = Math.min(4.0, baseIntensity + spike); // Cap at 4x
+                    // When velocity is low (at the peak of the swing) and tension is high, create a spike.
+                    const spike = baseIntensity * tension * 3.0; // Adds up to 3.0 to the intensity
+                    let finalIntensity = Math.min(4.0, baseIntensity + spike); // Cap at 4x
 
-                lampFx.style.setProperty('--light-intensity', finalIntensity);
-                
-                const sparkleIntensity = Math.min(1.0, spike / 2.0); // Normalize spike for sparkle opacity
-                lampFx.style.setProperty('--sparkle-intensity', sparkleIntensity);
+                    lampFx.style.setProperty('--light-intensity', finalIntensity);
+                    
+                    const sparkleIntensity = Math.min(1.0, spike / 2.0); // Normalize spike for sparkle opacity
+                    lampFx.style.setProperty('--sparkle-intensity', sparkleIntensity);
 
 
-                // Create a rapid, rhythmic color change based on time and swing position
-                const rhythmicHue = (performance.now() / 15 + angle * 200) % 360;
-                // Make saturation vibrant, especially at high intensity
-                const flareSaturation = 70 + (finalIntensity / 4) * 30; // From 70% to 100%
+                    // Create a rapid, rhythmic color change based on time and swing position
+                    const rhythmicHue = (performance.now() / 15 + angle * 200) % 360;
+                    // Make saturation vibrant, especially at high intensity
+                    const flareSaturation = 70 + (finalIntensity / 4) * 30; // From 70% to 100%
 
-                lampFx.style.setProperty('--flare-hue', rhythmicHue);
-                lampFx.style.setProperty('--flare-saturation', `${flareSaturation}%`);
+                    lampFx.style.setProperty('--flare-hue', rhythmicHue);
+                    lampFx.style.setProperty('--flare-saturation', `${flareSaturation}%`);
+                }
             }
 
 
