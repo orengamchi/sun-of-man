@@ -13,6 +13,7 @@
     <link rel="preload" href="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fwall%20%20move.png?alt=media&token=bbc568bc-b380-4c47-91fd-f987916e101e" as="image">
     <link rel="preload" href="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Ftie.png?alt=media&token=c9d88174-b999-42f8-8fd6-afeb06500d3f" as="image">
 
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -64,11 +65,11 @@
             -webkit-user-drag: none;
         }
         
-        #man, #head, #hands, #tie { cursor: grab; }
-        #man:active, #head:active, #hands:active, #tie:active { cursor: grabbing; }
+        #man, #head, #hands { cursor: grab; }
+        #man:active, #head:active, #hands:active { cursor: grabbing; }
 
         #character-container {
-             z-index: 121; /* Increased to be above portfolio buttons */
+             z-index: 80;
             transform-origin: 50% 180%; /* Adjusted for landscape */
             pointer-events: none; /* Events pass through container */
         }
@@ -76,14 +77,14 @@
         #head-container {
             z-index: 85; /* Above other body parts */
             pointer-events: none;
-            transform-origin: 50% 115%; /* Pivot from below the chin for an arc swing */
+            transform-origin: 50% 100%; /* Pivot from the top of the tie */
         }
         #head { pointer-events: auto; }
         
         #man { 
             z-index: 2; /* Relative to parent */
             pointer-events: auto; /* Man is draggable */
-            transition: opacity 0.5s ease-in-out; /* Smooth fade for man */
+            transition: opacity 0.2s ease-in-out;
         }
         
         #permission-request {
@@ -343,7 +344,7 @@
         }
 
         #wall-toggle-btn {
-            z-index: 130; /* Ensure it's on top of other layers to be clickable */
+            z-index: 110; /* Above apple, below portfolio buttons */
             position: absolute;
             top: calc(52% - 6.5cm); /* Raised by 1cm for desktop */
             left: 50%;
@@ -411,24 +412,25 @@
         }
 
         #portfolio-buttons-container {
-            z-index: 120; /* Raised above wall-toggle */
-            pointer-events: none; /* Let clicks pass through the container itself by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1500;
+            pointer-events: none; /* Let clicks pass through */
         }
         
-        #wall.raised ~ #portfolio-buttons-container {
-            pointer-events: auto; /* When wall is raised, the container can receive pointer events */
-        }
-
-
-        /* Use general sibling combinator to show buttons when wall is raised */
-        #wall.raised ~ #portfolio-buttons-container .portfolio-btn {
+        #portfolio-buttons-container.visible .portfolio-btn {
             opacity: 1;
-            transform: translate(-50%, -50%); /* Slide into final position */
+            transform: translate(-50%, -50%);
+            pointer-events: auto; /* Only buttons are clickable */
         }
 
         .portfolio-btn {
             position: absolute;
-            top: calc(55% + 4cm); /* Lowered buttons */
+            top: calc(50% + 4cm);
+            left: 50%;
             width: 120px; /* Reduced by 15% */
             height: 120px; /* Reduced by 15% */
             background: radial-gradient(circle at 40% 35%, #6a6a6a, #1a1a1a);
@@ -443,7 +445,7 @@
             align-items: center;
             justify-content: center;
             opacity: 0;
-            pointer-events: auto; /* Buttons should always be clickable when visible */
+            pointer-events: none; /* Not clickable when hidden */
             transform: translate(-50%, calc(-50% + 20px)); /* Start lower */
             transition: opacity 0.4s ease-out 0.7s, transform 0.4s ease-out 0.7s, box-shadow 0.3s ease; /* Delayed fade and slide-in */
             text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
@@ -452,6 +454,16 @@
                 inset 5px 5px 15px rgba(0, 0, 0, 0.5), /* Inner shadow */
                 0 15px 25px rgba(0, 0, 0, 0.5); /* Outer shadow */
             overflow: hidden; /* Clips the reflection */
+        }
+        
+        #left-portfolio-btn {
+            /* Adjust left position based on viewport and art container size */
+            left: calc(50% - 1326px * 0.35); 
+        }
+
+        #right-portfolio-btn {
+            /* Adjust right position based on viewport and art container size */
+            left: calc(50% + 1326px * 0.35);
         }
 
         .portfolio-btn::before {
@@ -472,14 +484,6 @@
                 inset -15px -15px 25px rgba(255, 255, 255, 0.2),
                 inset 8px 8px 20px rgba(0, 0, 0, 0.6),
                 0 20px 30px rgba(0, 0, 0, 0.6);
-        }
-
-        #left-portfolio-btn {
-            left: 15%;
-        }
-
-        #right-portfolio-btn {
-            left: 85%;
         }
 
         /* Lamp and Lens Flare Styles */
@@ -619,44 +623,31 @@
             opacity: 0;
             z-index: 3; /* Relative to parent */
             pointer-events: none;
-            transition: opacity 0.2s ease-in-out; /* Fade in faster */
+            transition: opacity 0.2s ease-in-out; 
         }
-
-        /* Tie Layer Style */
-        #tie-wrapper {
-            opacity: 0;
-            z-index: 4; /* Above hands, below contact form */
-            pointer-events: none; /* Make it pass-through */
-            transition: opacity 0.2s ease-in-out 0.1s; /* Fade in slightly after hands */
-            transform-origin: 50% 15%; /* Set pivot point at the top for swinging */
-        }
-
+        
         #tie {
-            pointer-events: none; /* Make image non-interactive by default */
+            opacity: 0;
+            z-index: 4;
+            pointer-events: none;
+            transform-origin: 50% 10%;
+            transition: opacity 0.2s ease-in-out;
         }
 
         #wall.raised ~ #character-container #man {
             opacity: 0;
-            transition: opacity 0.2s ease-in-out 0.1s; /* Delay the fade out slightly */
+            pointer-events: none;
         }
         
-        #wall.raised ~ #character-container #hands {
+        #wall.raised ~ #character-container #hands,
+        #wall.raised ~ #character-container #tie {
             opacity: 1;
             pointer-events: auto;
         }
 
-        #wall.raised ~ #character-container #tie-wrapper {
-            opacity: 1;
-            /* The wrapper itself remains non-interactive */
-        }
-
-        #wall.raised ~ #character-container #tie-wrapper #tie {
-            pointer-events: auto; /* Make the IMAGE interactive */
-        }
-
         /* Contact Form Styles */
         #contact-form-container {
-            z-index: 5; /* Relative to parent, was 4 */
+            z-index: 5; /* Relative to parent */
             top: 58%; /* Repositioned */
             left: 35%; /* Repositioned */
             width: 30%; /* Resized */
@@ -673,7 +664,7 @@
         
         #wall.raised ~ #character-container #contact-form-container {
             opacity: 1;
-            /* The container remains non-interactive, allowing drag events to pass through. */
+            pointer-events: auto; /* Allow drag on the form area */
         }
         
         /* When the wall is raised, make ONLY the links and SVGs inside the form clickable */
@@ -753,7 +744,7 @@
             transform-style: preserve-3d;
             animation: fall linear forwards;
             pointer-events: auto;
-            cursor: url("data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cfilter id='shadow'%3E%3CfeDropShadow dx='1' dy='1' stdDeviation='1' flood-color='%23000' flood-opacity='0.7'/%3E%3C/defs%3E%3Cg filter='url(%23shadow)'%3E%3Cpath d='M 16 2 L 16 13 M 16 19 L 16 30 M 2 16 L 13 16 M 19 16 L 30 16' stroke='white' stroke-width='2' fill='none'/%3E%3C/g%3E%3C/svg%3E") 16 16, crosshair;
+            cursor: url("data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cfilter id='shadow'%3E%3CfeDropShadow dx='1' dy='1' stdDeviation='1' flood-color='%23000' flood-opacity='0.7'/%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23shadow)'%3E%3Cpath d='M 16 2 L 16 13 M 16 19 L 16 30 M 2 16 L 13 16 M 19 16 L 30 16' stroke='white' stroke-width='2' fill='none'/%3E%3C/g%3E%3C/svg%3E") 16 16, crosshair;
         }
 
         .falling-man-inner {
@@ -791,10 +782,6 @@
         @media (max-width: 800px) {
             body {
                 padding: 1rem 0;
-            }
-
-            #falling-men-container {
-                display: none;
             }
 
             #art-container {
@@ -847,6 +834,26 @@
             #right-portfolio-btn {
                 left: 85%;
             }
+            
+            #left-portfolio-btn, #right-portfolio-btn {
+                left: 50%;
+            }
+
+            #left-portfolio-btn {
+                transform: translate(calc(-50% - 60px), -50%);
+            }
+            
+            #right-portfolio-btn {
+                transform: translate(calc(-50% + 60px), -50%);
+            }
+            
+            #portfolio-buttons-container.visible #left-portfolio-btn {
+                 transform: translate(calc(-50% - 60px), -50%);
+            }
+
+            #portfolio-buttons-container.visible #right-portfolio-btn {
+                 transform: translate(calc(-50% + 60px), -50%);
+            }
 
             #contact-form-container {
                 width: 60%;
@@ -882,7 +889,6 @@
                 object-fit: cover;
                 object-position: bottom;
             }
-
         }
 
     </style>
@@ -945,10 +951,8 @@
             </div>
             <img id="man" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fman.png?alt=media&token=8da1ff64-f319-49fa-91de-28ec3d5f4976" alt="איש" class="layer">
             <img id="hands" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fhands.png?alt=media&token=61201388-702e-4999-86b3-771149f433bd" alt="ידיים" class="layer">
-            <div id="tie-wrapper" class="layer">
-                <img id="tie" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Ftie.png?alt=media&token=c9d88174-b999-42f8-8fd6-afeb06500d3f" alt="עניבה" class="layer">
-            </div>
-            
+            <img id="tie" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Ftie.png?alt=media&token=c9d88174-b999-42f8-8fd6-afeb06500d3f" alt="עניבה" class="layer">
+
             <div id="contact-form-container" class="layer">
                 <div class="contact-content">
                     <h3>GET IN TOUCH</h3>
@@ -996,18 +1000,17 @@
         </div>
         
         <button id="wall-toggle-btn" class="layer"></button>
-
-        <div id="portfolio-buttons-container" class="layer">
-             <a href="https://studio--portfolioflow-8qrng.us-central1.hosted.app/" target="_blank" id="left-portfolio-btn" class="portfolio-btn">
-                  AI
-             </a>
-             <a href="https://studio--portfolioflow-8qrng.us-central1.hosted.app/about" target="_blank" id="right-portfolio-btn" class="portfolio-btn">
-                  HR
-             </a>
-        </div>
-
     </div>
     
+    <div id="portfolio-buttons-container">
+        <a href="https://studio--portfolioflow-8qrng.us-central1.hosted.app/" target="_blank" id="left-portfolio-btn" class="portfolio-btn">
+            AI
+        </a>
+        <a href="https://studio--portfolioflow-8qrng.us-central1.hosted.app/about" target="_blank" id="right-portfolio-btn" class="portfolio-btn">
+            HR
+        </a>
+    </div>
+
     <div id="permission-request">
         <button id="permission-btn" class="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-indigo-700 transition-colors text-base">
             הפעל חיישני תנועה
@@ -1020,6 +1023,7 @@
         const characterContainer = document.getElementById('character-container');
         const man = document.getElementById('man');
         const hands = document.getElementById('hands');
+        const tie = document.getElementById('tie');
         const headContainer = document.getElementById('head-container');
         const lampFx = document.getElementById('lamp-fx');
         const textOverlay = document.getElementById('text-overlay');
@@ -1036,8 +1040,7 @@
         const wallTextOverlay = document.getElementById('wall-text-overlay');
         const wallHeaderText = document.getElementById('wall-header-text');
         const fallingMenContainer = document.getElementById('falling-men-container');
-        const tieWrapper = document.getElementById('tie-wrapper');
-        const tieImage = document.getElementById('tie');
+        const portfolioButtonsContainer = document.getElementById('portfolio-buttons-container');
 
         // --- Preload Images ---
         const imageUrls = [
@@ -1051,27 +1054,19 @@
         const spring = 0.005, damping = 0.985;
         let pivotX, pivotY;
 
-        // --- Head Physics Logic (for secondary motion) ---
+        // --- Head & Tie Physics Logic (for secondary motion) ---
         let headAngle = 0, headVelocity = 0;
         const headSpring = 0.025;
         const headDamping = 0.96;
+        let tieAngle = 0, tieVelocity = 0;
+        const tieSpring = 0.03;
+        const tieDamping = 0.95;
 
-        // --- Tie Physics Logic ---
-        let isDraggingTie = false;
-        const tieAnchor = { x: 0, y: 0 };
-        const tieBob = { x: 0, y: 0 };
-        const tieVelocity = { x: 0, y: 0 };
-        const tieSpring = 0.1;
-        const tieFriction = 0.85;
-        let startDragPos = { x: 0, y: 0 };
-        let startTiePos = { x: 0, y: 0 };
 
         // --- Particle Effect Logic ---
         let particleIntervalId = null;
 
         function createBiteEffect() {
-            const isMobile = window.innerWidth <= 800;
-            const topOffset = isMobile ? '3.5cm' : '6.5cm';
             const numParticles = 10 + Math.floor(Math.random() * 10); // 10 to 19 particles
             for (let i = 0; i < numParticles; i++) {
                 const particle = document.createElement('div');
@@ -1083,7 +1078,7 @@
                 const randomOffsetY = (Math.random() - 0.5) * 40; // pixel random offset
 
                 particle.style.left = `calc(50% + ${randomOffsetX}px)`;
-                particle.style.top = `calc(52% - ${topOffset} + ${randomOffsetY}px)`;
+                particle.style.top = `calc(52% - 6.5cm + ${randomOffsetY}px)`;
 
 
                 // Random direction and distance
@@ -1117,20 +1112,17 @@
         function manDragStart(e) {
              // Prevent drag from starting on a link
              if (e.target.closest('a')) {
-                 return;
-             }
+                return;
+            }
 
             // Allow drag if starting on man, head, hands, or the contact form area
             if(['man', 'head', 'hands'].includes(e.target.id) || e.target.closest('#contact-form-container')) {
                 isDraggingMan = true;
-                
-                // Set the correct cursor based on which character is visible
-                if (wall.classList.contains('raised')) {
-                    hands.style.cursor = 'grabbing';
-                } else {
-                    man.style.cursor = 'grabbing';
+                const cursorTarget = hands.style.opacity === '1' ? hands : man;
+                if(cursorTarget) {
+                    cursorTarget.style.cursor = 'grabbing';
+                    head.style.cursor = 'grabbing';
                 }
-
                 velocity = 0;
             }
         }
@@ -1143,7 +1135,7 @@
             let newAngle = Math.atan2((clientX - pivotX) * 0.6, -(clientY - pivotY));
 
             // Clamp the angle symmetrically for both sides
-            const maxAngle = 0.436; // Approx 25 degrees
+            const maxAngle = 0.349; // Approx 20 degrees
             if (newAngle > maxAngle) {
                 newAngle = maxAngle;
             } else if (newAngle < -maxAngle) {
@@ -1156,50 +1148,8 @@
             if (isDraggingMan) {
                 isDraggingMan = false;
                 man.style.cursor = 'grab';
+                head.style.cursor = 'grab';
                 hands.style.cursor = 'grab';
-            }
-        }
-
-        // --- Tie Drag Logic ---
-        function tieDragStart(e) {
-            if (!wall.classList.contains('raised')) return;
-            e.stopPropagation(); // Prevent character container from being dragged
-            isDraggingTie = true;
-            tieImage.style.cursor = 'grabbing';
-
-            const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-            const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
-
-            startDragPos = { x: clientX, y: clientY };
-            startTiePos = { x: tieBob.x, y: tieBob.y };
-        }
-
-        function tieDrag(e) {
-            if (!isDraggingTie) return;
-            e.preventDefault();
-            const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
-            const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
-
-            const dx = clientX - startDragPos.x;
-            const dy = clientY - startDragPos.y;
-
-            // Limit the stretch distance
-            const stretchDistance = Math.sqrt(Math.pow(startTiePos.x + dx, 2) + Math.pow(startTiePos.y + dy, 2));
-            const maxStretch = 150; 
-            if (stretchDistance > maxStretch) {
-                 const angle = Math.atan2(startTiePos.y + dy, startTiePos.x + dx);
-                 tieBob.x = Math.cos(angle) * maxStretch;
-                 tieBob.y = Math.sin(angle) * maxStretch;
-            } else {
-                tieBob.x = startTiePos.x + dx;
-                tieBob.y = startTiePos.y + dy;
-            }
-        }
-
-        function tieDragEnd() {
-            if (isDraggingTie) {
-                isDraggingTie = false;
-                tieImage.style.cursor = 'grab';
             }
         }
 
@@ -1207,7 +1157,7 @@
         function handleOrientation(event) {
             const gamma = event.gamma || 0;
             const clampedGamma = Math.max(-60, Math.min(60, gamma));
-            targetAngle = (clampedGamma / 60) * 0.436; // Map tilt to angle in radians (max 25 degrees)
+            targetAngle = (clampedGamma / 60) * 0.7; // Map tilt to angle in radians
         }
 
         function requestMotionPermission() {
@@ -1354,34 +1304,11 @@
             headVelocity += headForce;
             headVelocity *= headDamping;
             headAngle += headVelocity;
-
-            // --- Tie Physics Update ---
-            if (wall.classList.contains('raised')) {
-                if (!isDraggingTie) {
-                    const dx = tieBob.x - tieAnchor.x;
-                    const dy = tieBob.y - tieAnchor.y;
-                    const ax = dx * -tieSpring;
-                    const ay = dy * -tieSpring;
-
-                    tieVelocity.x += ax;
-                    tieVelocity.y += ay;
-                    tieVelocity.x *= tieFriction;
-                    tieVelocity.y *= tieFriction;
-
-                    tieBob.x += tieVelocity.x;
-                    tieBob.y += tieVelocity.y;
-                }
-                tieWrapper.style.transform = `translate(${tieBob.x}px, ${tieBob.y}px)`;
-            } else {
-                // Reset tie position and physics when wall is not raised
-                if (tieBob.x !== 0 || tieBob.y !== 0 || tieVelocity.x !== 0 || tieVelocity.y !== 0) {
-                    tieBob.x = 0;
-                    tieBob.y = 0;
-                    tieVelocity.x = 0;
-                    tieVelocity.y = 0;
-                    tieWrapper.style.transform = 'translate(0px, 0px)';
-                }
-            }
+            
+            const tieForce = -tieSpring * (tieAngle - angle);
+            tieVelocity += tieForce;
+            tieVelocity *= tieDamping;
+            tieAngle += tieVelocity;
 
             const isAtRest = Math.abs(velocity) < 0.0005 && Math.abs(angle - targetAngle) < 0.01;
 
@@ -1419,13 +1346,16 @@
             const textRotationStyle = `rotate(${-angle * (180 / Math.PI)}deg)`;
             
             const wobbleAngle = headAngle - angle;
-            const wobbleRotationStyle = `rotate(${wobbleAngle * (180 / Math.PI) * 2.0}deg)`;
+            const tieWobbleAngle = tieAngle - angle;
+            const wobbleRotationStyle = `rotate(${wobbleAngle * (180 / Math.PI) * 2.5}deg)`;
+            const tieWobbleRotationStyle = `rotate(${tieWobbleAngle * (180 / Math.PI) * 2.5}deg)`;
 
             const subHeadlineRelativeRotation = (angle - delayedAngle) * (180 / Math.PI);
             const subHeadlineRotationStyle = `rotate(${subHeadlineRelativeRotation}deg)`;
 
             characterContainer.style.transform = rotationStyle;
             headContainer.style.transform = wobbleRotationStyle; // The entire head unit now wobbles together
+            tie.style.transform = tieWobbleRotationStyle;
             textOverlay.style.transform = textRotationStyle;
             wallTextOverlay.style.transform = textRotationStyle;
             subHeadline.style.transform = subHeadlineRotationStyle;
@@ -1462,14 +1392,10 @@
         // --- Event Listeners & Initialization ---
         window.addEventListener('load', () => {
             textOverlay.style.opacity = 1;
-            
-            if (window.innerWidth > 800) {
-                // Delay the start of the falling men animation only on desktop
-                setTimeout(() => {
-                    initFallingManFeature();
-                }, 5000); 
-            }
-            
+            // Delay the start of the falling men animation
+            setTimeout(() => {
+                initFallingManFeature();
+            }, 5000); 
             updatePivot();
             animate();
         });
@@ -1484,18 +1410,11 @@
         document.addEventListener('mouseup', manDragEnd);
         document.addEventListener('touchend', manDragEnd);
 
-        tieImage.addEventListener('mousedown', tieDragStart);
-        tieImage.addEventListener('touchstart', tieDragStart, { passive: false });
-        document.addEventListener('mousemove', tieDrag);
-        document.addEventListener('touchmove', tieDrag, { passive: false });
-        document.addEventListener('mouseup', tieDragEnd);
-        document.addEventListener('touchend', tieDragEnd);
-
-
         appleContainer.addEventListener('click', () => {
             if (!appleContainer.classList.contains('clickable')) return;
             
-            wall.classList.toggle('raised'); // Toggle the wall on apple click
+            wall.classList.toggle('raised'); 
+            portfolioButtonsContainer.classList.toggle('visible');
 
             // Trigger a bigger particle burst
             createBiteEffect();
@@ -1524,6 +1443,8 @@
         wallToggleBtn.addEventListener('click', (e) => {
             e.stopPropagation(); // Prevent click from reaching the man
             wall.classList.toggle('raised');
+            portfolioButtonsContainer.classList.toggle('visible');
+
 
             // Mobile-only red apple blink effect on click
             const isMobile = window.innerWidth <= 800;
@@ -1572,5 +1493,4 @@
     </script>
 </body>
 </html>
-
 
