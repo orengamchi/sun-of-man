@@ -429,7 +429,7 @@
 
         .portfolio-btn {
             position: absolute;
-            top: calc(50% + 4cm);
+            top: 78%; /* Raised buttons */
             left: 50%;
             width: 120px; /* Reduced by 15% */
             height: 120px; /* Reduced by 15% */
@@ -457,13 +457,11 @@
         }
         
         #left-portfolio-btn {
-            /* Adjust left position based on viewport and art container size */
-            left: calc(50% - 1326px * 0.35); 
+            left: calc(50% - 1326px * 0.28); 
         }
 
         #right-portfolio-btn {
-            /* Adjust right position based on viewport and art container size */
-            left: calc(50% + 1326px * 0.35);
+            left: calc(50% + 1326px * 0.28);
         }
 
         .portfolio-btn::before {
@@ -799,6 +797,10 @@
             .sub-headline {
                 font-size: 0.9rem;
             }
+            
+            #wall {
+                width: 350%;
+            }
 
             #wall-header {
                 font-size: 2.5rem;
@@ -824,36 +826,26 @@
                 width: 50px; /* Reduced by 50% */
                 height: 50px; /* Reduced by 50% */
                 font-size: 0.9rem; /* Reduced by 50% */
-                top: 70%; /* Lowered buttons */
+                top: 80%; /* Adjusted button height */
             }
 
             #left-portfolio-btn {
-                left: 15%;
+                left: 25%; /* Moved closer to center */
             }
 
             #right-portfolio-btn {
-                left: 85%;
+                left: 75%; /* Moved closer to center */
             }
             
-            #left-portfolio-btn, #right-portfolio-btn {
-                left: 50%;
-            }
-
-            #left-portfolio-btn {
-                transform: translate(calc(-50% - 60px), -50%);
-            }
-            
-            #right-portfolio-btn {
-                transform: translate(calc(-50% + 60px), -50%);
-            }
-            
-            #portfolio-buttons-container.visible #left-portfolio-btn {
-                 transform: translate(calc(-50% - 60px), -50%);
-            }
-
+            #portfolio-buttons-container.visible #left-portfolio-btn,
             #portfolio-buttons-container.visible #right-portfolio-btn {
-                 transform: translate(calc(-50% + 60px), -50%);
+                 transform: translate(-50%, -50%);
             }
+            
+            .portfolio-btn:hover {
+                transform: translate(-50%, -50%) scale(1.05);
+            }
+            
 
             #contact-form-container {
                 width: 60%;
@@ -1160,7 +1152,7 @@
         function handleOrientation(event) {
             const gamma = event.gamma || 0;
             const clampedGamma = Math.max(-60, Math.min(60, gamma));
-            targetAngle = (clampedGamma / 60) * 0.349; // Map tilt to angle (max 20 deg)
+            targetAngle = (clampedGamma / 60) * 0.1745; // Map tilt to angle (max 20 deg), sensitivity halved
         }
 
         function requestMotionPermission() {
@@ -1351,7 +1343,10 @@
             const wobbleAngle = headAngle - angle;
             const tieWobbleAngle = tieAngle - angle;
             const wobbleRotationStyle = `rotate(${wobbleAngle * (180 / Math.PI) * 2.5}deg)`;
-            const tieWobbleRotationStyle = `rotate(${tieWobbleAngle * (180 / Math.PI) * 2.5}deg)`;
+
+            const isMobile = window.innerWidth <= 800;
+            const tieScale = isMobile ? ' scaleX(1.2)' : '';
+            const tieWobbleRotationStyle = `rotate(${tieWobbleAngle * (180 / Math.PI) * 2.5}deg)${tieScale}`;
 
             const subHeadlineRelativeRotation = (angle - delayedAngle) * (180 / Math.PI);
             const subHeadlineRotationStyle = `rotate(${subHeadlineRelativeRotation}deg)`;
@@ -1496,4 +1491,5 @@
     </script>
 </body>
 </html>
+
 
