@@ -1160,7 +1160,7 @@
         function handleOrientation(event) {
             const gamma = event.gamma || 0;
             const clampedGamma = Math.max(-60, Math.min(60, gamma));
-            targetAngle = (clampedGamma / 60) * 0.7; // Map tilt to angle in radians
+            targetAngle = (clampedGamma / 60) * 0.349; // Map tilt to angle (max 20 deg)
         }
 
         function requestMotionPermission() {
@@ -1496,5 +1496,4 @@
     </script>
 </body>
 </html>
-
 
