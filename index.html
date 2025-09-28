@@ -130,8 +130,8 @@
         }
 
         @keyframes blink-animation {
-          0%, 49.9% { opacity: 1; }
-          50%, 100% { opacity: 0; }
+            0%, 49.9% { opacity: 1; }
+            50%, 100% { opacity: 0; }
         }
 
         #eat {
@@ -226,7 +226,7 @@
                     -6px -6px 0px #2c3e50,
                     -7px -7px 0px #2c3e50,
                     -8px -8px 0px #2c3e50,
-                      /* Drop Shadow */
+                       /* Drop Shadow */
                     9px 9px 15px rgba(0,0,0,0.5);
             }
         }
@@ -363,7 +363,7 @@
 
         .contact-content {
             position: relative;
-            top: calc(12% + 1cm); 
+            top: calc(12% + 2cm); 
             text-align: center;
         }
 
@@ -465,14 +465,14 @@
         }
 
         #wall.raised ~ #social-links-container .social-canvas {
-            top: calc(78% - 0.5cm); /* End position */
+            top: calc(78% - 1cm); /* End position - raised by another 0.5cm */
             opacity: 1;
             pointer-events: auto; /* Clickable when visible */
         }
 
 
-        #github-canvas { left: calc(20% - 0.5cm); }
-        #linkedin-canvas { left: calc(80% + 0.5cm); }
+        #github-canvas { left: calc(20% - 1cm); }
+        #linkedin-canvas { left: calc(80% + 1cm); }
 
         /* Lamp and Lens Flare Styles */
         #lamp-fx {
@@ -734,11 +734,11 @@
             }
 
             #wall.raised ~ #social-links-container .social-canvas {
-                top: calc(80% - 0.5cm);
+                top: calc(80% - 1cm);
             }
             
-            #github-canvas { left: calc(20% - 0.5cm); }
-            #linkedin-canvas { left: calc(80% + 0.5cm); }
+            #github-canvas { left: calc(20% - 1cm); }
+            #linkedin-canvas { left: calc(80% + 1cm); }
 
             /* Adjust the main pendulum pivot for a better feel on portrait screens */
             #character-container {
@@ -759,7 +759,7 @@
                 font-size: 1rem;
             }
             .contact-content {
-                top: calc(16% + 1cm);
+                top: calc(16% + 2cm);
             }
         }
 
@@ -981,7 +981,7 @@
         function manDragStart(e) {
              // Prevent drag from starting on a link
              if (e.target.closest('a')) {
-                return;
+                 return;
             }
 
             // Allow drag if starting on man, head, hands, or the contact form area
@@ -1166,7 +1166,7 @@
 
                 const scene = new THREE.Scene();
                 const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
-                camera.position.z = 2.6;
+                camera.position.z = 24; 
 
                 const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
                 renderer.setClearColor(0x000000, 0); 
@@ -1181,14 +1181,36 @@
                 textureLoader.setCrossOrigin("anonymous");
                 const texture = textureLoader.load(link.texture);
                 
-                const geometry = new THREE.SphereGeometry(1.6, 32, 32);
-                const material = new THREE.MeshStandardMaterial({
+                // --- Sphere ---
+                const sphereGeometry = new THREE.SphereGeometry(9, 32, 32); 
+                const sphereMaterial = new THREE.MeshStandardMaterial({
                        map: texture,
                        metalness: 0.2,
                        roughness: 0.8
                 });
-                const sphere = new THREE.Mesh(geometry, material);
-                scene.add(sphere);
+                const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+                
+                // --- Planes ---
+                const planesContainer = new THREE.Group();
+                const planeGeometry = new THREE.BoxGeometry(9, 12.6, 0.45);
+                const planeMaterial = new THREE.MeshStandardMaterial({ color: 0xeeeeee, roughness: 0.6, metalness: 0.2 });
+                const numPlanes = 5;
+                const radius = 16.2;
+
+                for (let i = 0; i < numPlanes; i++) {
+                    const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+                    const angle = (i / numPlanes) * Math.PI * 2;
+                    plane.position.x = Math.cos(angle) * radius;
+                    plane.position.z = Math.sin(angle) * radius;
+                    plane.lookAt(0, 0, 0);
+                    planesContainer.add(plane);
+                }
+
+                // --- Main Group for mouse interaction ---
+                const mainGroup = new THREE.Group();
+                mainGroup.add(sphere);
+                mainGroup.add(planesContainer);
+                scene.add(mainGroup);
 
                 const raycaster = new THREE.Raycaster();
                 const mouse = new THREE.Vector2();
@@ -1198,8 +1220,8 @@
                     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
                     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
                     raycaster.setFromCamera(mouse, camera);
-                    const intersects = raycaster.intersectObjects(scene.children);
-                    if (intersects.length > 0) {
+                    const intersects = raycaster.intersectObjects(mainGroup.children, true);
+                    if (intersects.length > 0 && intersects[0].object === sphere) {
                         window.open(link.url, '_blank');
                     }
                 });
@@ -1208,11 +1230,11 @@
                     const rect = canvas.getBoundingClientRect();
                     const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
                     const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-                    sphere.rotation.y = x * 0.5;
-                    sphere.rotation.x = -y * 0.5;
+                    mainGroup.rotation.y += (x * 0.5 - mainGroup.rotation.y) * 0.1;
+                    mainGroup.rotation.x += (-y * 0.5 - mainGroup.rotation.x) * 0.1;
                 });
 
-                spheres.push({ scene, camera, renderer, sphere });
+                spheres.push({ scene, camera, renderer, sphere, planesContainer, mainGroup });
             });
         }
 
@@ -1319,6 +1341,9 @@
             
              // Render 3D spheres
             spheres.forEach(s => {
+                if (s.planesContainer) {
+                    s.planesContainer.rotation.y += 0.005;
+                }
                 s.renderer.render(s.scene, s.camera);
             });
         }
@@ -1427,4 +1452,3 @@
     </script>
 </body>
 </html>
-
