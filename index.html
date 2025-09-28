@@ -11,6 +11,7 @@
     <link rel="preload" href="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fman.png?alt=media&token=8da1ff64-f319-49fa-91de-28ec3d5f4976" as="image">
     <link rel="preload" href="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fhands.png?alt=media&token=61201388-702e-4999-86b3-771149f433bd" as="image">
     <link rel="preload" href="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fwall%20%20move.png?alt=media&token=bbc568bc-b380-4c47-91fd-f987916e101e" as="image">
+    <link rel="preload" href="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Ftie.png?alt=media&token=c9d88174-b999-42f8-8fd6-afeb06500d3f" as="image">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap" rel="stylesheet">
@@ -48,6 +49,9 @@
 
         #bg {
             object-fit: cover;
+            width: 300%; /* Make wider for parallax */
+            left: 50%; /* Center the element */
+            transform: translateX(-50%); /* Center the element */
         }
 
         .layer {
@@ -60,16 +64,11 @@
             -webkit-user-drag: none;
         }
         
-        #man, #head, #hands { cursor: grab; }
-        #man:active, #head:active, #hands:active { cursor: grabbing; }
+        #man, #head, #hands, #tie { cursor: grab; }
+        #man:active, #head:active, #hands:active, #tie:active { cursor: grabbing; }
 
-        #head, #hat, #eat {
-            transform-origin: 50% 115%; /* Pivot from below the chin for an arc swing */
-        }
-
-        /* New container for the character */
-        #body-and-head-container {
-            z-index: 80;
+        #character-container {
+             z-index: 80;
             transform-origin: 50% 180%; /* Adjusted for landscape */
             pointer-events: none; /* Events pass through container */
         }
@@ -77,6 +76,7 @@
         #head-container {
             z-index: 85; /* Above other body parts */
             pointer-events: none;
+            transform-origin: 50% 115%; /* Pivot from below the chin for an arc swing */
         }
         #head { pointer-events: auto; }
         
@@ -164,6 +164,9 @@
         
         #wall {
             transition: top 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+            width: 280%; /* Make wider for parallax */
+            left: 50%;   /* Center the element */
+            transform: translateX(-50%); /* Center the element */
         }
 
         #wall.raised {
@@ -340,21 +343,21 @@
         }
 
         #wall-toggle-btn {
-            z-index: 110;
+            z-index: 130; /* Ensure it's on top of other layers to be clickable */
             position: absolute;
-            top: calc(48% - 5cm);
+            top: calc(52% - 6.5cm); /* Raised by 1cm for desktop */
             left: 50%;
             width: 65px; /* Increased by 30% */
             height: 65px; /* Increased by 30% */
-            background-color: transparent; /* Hidden */
-            border: none; /* Hidden */
+            background-color: transparent; 
+            border: none;
             border-radius: 50%;
             cursor: pointer;
             transform: translate(-50%, -50%);
         }
 
         #wall-toggle-btn:hover {
-            background-color: transparent; /* Hidden */
+            background-color: transparent;
         }
 
         /* Apple pulse animation */
@@ -379,7 +382,7 @@
             width: 100%;
             height: 100%;
             transition: opacity 0.3s ease;
-            transform: scaleX(1.8); /* Increased width by another 30% */
+            transform: scaleX(1.62); /* Shrunk by 10% for desktop */
         }
 
         #apple {
@@ -408,35 +411,39 @@
         }
 
         #portfolio-buttons-container {
-            z-index: 95; /* Raised above the character container */
-            pointer-events: none; /* Let clicks pass through the container itself */
+            z-index: 120; /* Raised above wall-toggle */
+            pointer-events: none; /* Let clicks pass through the container itself by default */
         }
+        
+        #wall.raised ~ #portfolio-buttons-container {
+            pointer-events: auto; /* When wall is raised, the container can receive pointer events */
+        }
+
 
         /* Use general sibling combinator to show buttons when wall is raised */
         #wall.raised ~ #portfolio-buttons-container .portfolio-btn {
             opacity: 1;
-            pointer-events: auto; /* Make them clickable */
             transform: translate(-50%, -50%); /* Slide into final position */
         }
 
         .portfolio-btn {
             position: absolute;
-            top: calc(55% + 3cm); /* Repositioned vertically */
-            width: 140px;
-            height: 140px;
+            top: calc(55% + 4cm); /* Lowered buttons */
+            width: 120px; /* Reduced by 15% */
+            height: 120px; /* Reduced by 15% */
             background: radial-gradient(circle at 40% 35%, #6a6a6a, #1a1a1a);
             border-radius: 50%;
             border: none;
             color: white;
             font-family: 'Orbitron', sans-serif;
-            font-size: 2.5rem;
+            font-size: 2.1rem; /* Reduced by 15% */
             font-weight: 700;
             text-decoration: none;
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
-            pointer-events: none; /* Buttons are not clickable by default */
+            pointer-events: auto; /* Buttons should always be clickable when visible */
             transform: translate(-50%, calc(-50% + 20px)); /* Start lower */
             transition: opacity 0.4s ease-out 0.7s, transform 0.4s ease-out 0.7s, box-shadow 0.3s ease; /* Delayed fade and slide-in */
             text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
@@ -468,23 +475,23 @@
         }
 
         #left-portfolio-btn {
-            left: calc(30% - 3cm + 20px); /* Repositioned horizontally */
+            left: 15%;
         }
 
         #right-portfolio-btn {
-            left: calc(70% + 3cm - 20px); /* Repositioned horizontally */
+            left: 85%;
         }
 
         /* Lamp and Lens Flare Styles */
         #lamp-fx {
             position: absolute;
-            top: calc(25% - 2cm); /* Raised by 2cm */
+            top: calc(25% - 1.5cm); /* Lowered by 0.5cm */
             left: 50%;
             width: 53px;
             height: 53px;
             transform: translateX(-50%);
             pointer-events: none;
-            z-index: 1; /* Relative to parent */
+            z-index: 1; /* Set behind man/hands */
             --light-intensity: 1.0; /* Custom property for brightness */
             --flare-hue: 60; /* Initial hue (yellow) */
             --flare-saturation: 50%; /* Initial saturation */
@@ -526,7 +533,7 @@
             height: 200px;
             transform: translate(-50%, -50%);
             opacity: var(--sparkle-intensity);
-            transition: opacity 0.3s;
+            transition: opacity 1.5s ease-out; /* Slow fade-out for the rays */
             pointer-events: none;
         }
 
@@ -615,19 +622,40 @@
             transition: opacity 0.2s ease-in-out; /* Fade in faster */
         }
 
-        #wall.raised ~ #body-and-head-container #man {
+        /* Tie Layer Style */
+        #tie-wrapper {
+            opacity: 0;
+            z-index: 4; /* Above hands, below contact form */
+            pointer-events: none; /* Make it pass-through */
+            transition: opacity 0.2s ease-in-out 0.1s; /* Fade in slightly after hands */
+        }
+
+        #tie {
+            pointer-events: none; /* Make image non-interactive by default */
+        }
+
+        #wall.raised ~ #character-container #man {
             opacity: 0;
             transition: opacity 0.2s ease-in-out 0.1s; /* Delay the fade out slightly */
         }
         
-        #wall.raised ~ #body-and-head-container #hands {
+        #wall.raised ~ #character-container #hands {
             opacity: 1;
             pointer-events: auto;
         }
 
+        #wall.raised ~ #character-container #tie-wrapper {
+            opacity: 1;
+            /* The wrapper itself remains non-interactive */
+        }
+
+        #wall.raised ~ #character-container #tie-wrapper #tie {
+            pointer-events: auto; /* Make the IMAGE interactive */
+        }
+
         /* Contact Form Styles */
         #contact-form-container {
-            z-index: 4; /* Relative to parent */
+            z-index: 5; /* Relative to parent, was 4 */
             top: 58%; /* Repositioned */
             left: 35%; /* Repositioned */
             width: 30%; /* Resized */
@@ -638,14 +666,21 @@
             align-items: center;
             justify-content: center;
             opacity: 0;
-            pointer-events: none;
+            pointer-events: none; /* Make container non-interactive by default */
             transition: opacity 0.2s ease-in-out; /* Synchronized with hands layer */
         }
         
-        #wall.raised ~ #body-and-head-container #contact-form-container {
+        #wall.raised ~ #character-container #contact-form-container {
             opacity: 1;
+            /* The container remains non-interactive, allowing drag events to pass through. */
+        }
+        
+        /* When the wall is raised, make ONLY the links and SVGs inside the form clickable */
+        #wall.raised ~ #character-container #contact-form-container a,
+        #wall.raised ~ #character-container #contact-form-container svg {
             pointer-events: auto;
         }
+
 
         .contact-content {
             text-align: center;
@@ -717,7 +752,7 @@
             transform-style: preserve-3d;
             animation: fall linear forwards;
             pointer-events: auto;
-            cursor: url("data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cfilter id='shadow'%3E%3CfeDropShadow dx='1' dy='1' stdDeviation='1' flood-color='%23000' flood-opacity='0.7'/%3E%3C/filter%3E%3C/defs%3E%3Cg filter='url(%23shadow)'%3E%3Cpath d='M 16 2 L 16 13 M 16 19 L 16 30 M 2 16 L 13 16 M 19 16 L 30 16' stroke='white' stroke-width='2' fill='none'/%3E%3C/g%3E%3C/svg%3E") 16 16, crosshair;
+            cursor: url("data:image/svg+xml,%3Csvg width='32' height='32' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cfilter id='shadow'%3E%3CfeDropShadow dx='1' dy='1' stdDeviation='1' flood-color='%23000' flood-opacity='0.7'/%3E%3C/defs%3E%3Cg filter='url(%23shadow)'%3E%3Cpath d='M 16 2 L 16 13 M 16 19 L 16 30 M 2 16 L 13 16 M 19 16 L 30 16' stroke='white' stroke-width='2' fill='none'/%3E%3C/g%3E%3C/svg%3E") 16 16, crosshair;
         }
 
         .falling-man-inner {
@@ -757,6 +792,10 @@
                 padding: 1rem 0;
             }
 
+            #falling-men-container {
+                display: none;
+            }
+
             #art-container {
                 width: 95vw;
                 height: calc(95vw * (720 / 1020)); /* Maintain aspect ratio */
@@ -784,20 +823,28 @@
             #wall-text-overlay {
                 font-size: 1.8rem;
             }
+
+            #wall-toggle-btn {
+                top: calc(52% - 3.5cm); /* Keep original mobile position */
+            }
+            
+            .apple-img {
+                transform: scaleX(1.8); /* Revert to original size on mobile */
+            }
             
             .portfolio-btn {
-                width: 100px;
-                height: 100px;
-                font-size: 1.8rem;
-                top: 65%;
+                width: 50px; /* Reduced by 50% */
+                height: 50px; /* Reduced by 50% */
+                font-size: 0.9rem; /* Reduced by 50% */
+                top: 70%; /* Lowered buttons */
             }
 
             #left-portfolio-btn {
-                left: 28%;
+                left: 15%;
             }
 
             #right-portfolio-btn {
-                left: 72%;
+                left: 85%;
             }
 
             #contact-form-container {
@@ -825,7 +872,7 @@
 
 
             /* Adjust the main pendulum pivot for a better feel on portrait screens */
-            #body-and-head-container {
+            #character-container {
                 transform-origin: 50% 150%;
             }
 
@@ -834,6 +881,10 @@
                 object-fit: cover;
                 object-position: bottom;
             }
+
+            #tie {
+                transform: scale(1.4);
+            }
         }
 
     </style>
@@ -841,7 +892,7 @@
 <body>
 
     <div id="art-container">
-        <img id="bg" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fbg.png?alt=media&token=f527f9b1-3bc4-48e9-9af2-e7d6f42e72c0" alt="רקע" class="layer" style="z-index: 10; pointer-events: none;">
+        <img id="bg" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fbg.png?alt=media&token=f527f9b1-3bc4-48e9-9af2-e7d6f42e72c0" alt="רקע" class="layer">
         
         <div id="falling-men-container" class="layer"></div>
 
@@ -852,7 +903,7 @@
             </div>
         </div>
 
-        <img id="wall" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fwall%20%20move.png?alt=media&token=bbc568bc-b380-4c47-91fd-f987916e101e" alt="קיר" class="layer" style="z-index: 50; pointer-events: none; top: 68%;">
+        <img id="wall" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fwall%20%20move.png?alt=media&token=bbc568bc-b380-4c47-91fd-f987916e101e" alt="קיר" class="layer" style="z-index: 50; pointer-events: none; top: calc(68% + 1cm);">
 
         <div id="wall-header" class="layer">
             <span id="wall-header-text" data-text="DAFkaze">DAFkaze</span>
@@ -861,8 +912,8 @@
         <div id="wall-text-overlay" class="layer">
             <span>VISIT<br>MY<br>SITE</span>
         </div>
-
-        <div id="body-and-head-container" class="layer">
+        
+        <div id="character-container" class="layer">
             <div id="lamp-fx" class="layer">
                 <div id="sun-effect-container">
                     <div id="sun-core"></div>
@@ -896,6 +947,9 @@
             </div>
             <img id="man" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fman.png?alt=media&token=8da1ff64-f319-49fa-91de-28ec3d5f4976" alt="איש" class="layer">
             <img id="hands" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fhands.png?alt=media&token=61201388-702e-4999-86b3-771149f433bd" alt="ידיים" class="layer">
+            <div id="tie-wrapper" class="layer">
+                <img id="tie" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Ftie.png?alt=media&token=c9d88174-b999-42f8-8fd6-afeb06500d3f" alt="עניבה" class="layer">
+            </div>
             
             <div id="contact-form-container" class="layer">
                 <div class="contact-content">
@@ -937,12 +991,12 @@
         </div>
         
         <div id="particle-container" class="layer" style="z-index: 90; pointer-events: none;"></div>
-
+        
         <div id="apple-container" class="layer" style="z-index: 100; pointer-events: none;">
             <img id="apple" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fapple.png?alt=media&token=85c0edb4-5d11-43fd-8ceb-88731253a828" alt="תפוח" class="apple-img">
             <img id="apple-red" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fapple%20red.png?alt=media&token=f4000d4b-51c1-4650-a8f5-0e5b563d64a3" alt="תפוח אדום" class="apple-img">
         </div>
-
+        
         <button id="wall-toggle-btn" class="layer"></button>
 
         <div id="portfolio-buttons-container" class="layer">
@@ -965,7 +1019,7 @@
     <script type="module">
         // --- Elements ---
         const artContainer = document.getElementById('art-container');
-        const bodyAndHeadContainer = document.getElementById('body-and-head-container');
+        const characterContainer = document.getElementById('character-container');
         const man = document.getElementById('man');
         const hands = document.getElementById('hands');
         const headContainer = document.getElementById('head-container');
@@ -977,12 +1031,15 @@
         const eat = document.getElementById('eat');
         const appleContainer = document.getElementById('apple-container');
         const apple = document.getElementById('apple');
+        const bg = document.getElementById('bg');
         const particleContainer = document.getElementById('particle-container');
         const wall = document.getElementById('wall');
         const wallToggleBtn = document.getElementById('wall-toggle-btn');
         const wallTextOverlay = document.getElementById('wall-text-overlay');
         const wallHeaderText = document.getElementById('wall-header-text');
         const fallingMenContainer = document.getElementById('falling-men-container');
+        const tieWrapper = document.getElementById('tie-wrapper');
+        const tieImage = document.getElementById('tie');
 
         // --- Preload Images ---
         const imageUrls = [
@@ -990,15 +1047,6 @@
             'https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fman%20back.png?alt=media&token=37b406ff-353e-4f8e-9de1-90460c1bb841'
         ];
         
-        // ניצור אבות טיפוס של התמונות לשימוש חוזר (פרוקסי)
-        const masterFrontImg = new Image();
-        masterFrontImg.src = imageUrls[0];
-
-        const masterBackImg = new Image();
-        masterBackImg.src = imageUrls[1];
-        masterBackImg.className = 'falling-man-back'; // נוסיף את הקלאס לאלמנט המאסטר
-
-
         // --- Pendulum Physics Logic ---
         let isDraggingMan = false, angle = 0, velocity = 0, targetAngle = 0;
         let angleHistory = []; // For delayed movement
@@ -1010,21 +1058,35 @@
         const headSpring = 0.025;
         const headDamping = 0.96;
 
+        // --- Tie Physics Logic ---
+        let isDraggingTie = false;
+        const tieAnchor = { x: 0, y: 0 };
+        const tieBob = { x: 0, y: 0 };
+        const tieVelocity = { x: 0, y: 0 };
+        const tieSpring = 0.1;
+        const tieFriction = 0.85;
+        let startDragPos = { x: 0, y: 0 };
+        let startTiePos = { x: 0, y: 0 };
+
         // --- Particle Effect Logic ---
         let particleIntervalId = null;
 
         function createBiteEffect() {
+            const isMobile = window.innerWidth <= 800;
+            const topOffset = isMobile ? '3.5cm' : '6.5cm';
             const numParticles = 10 + Math.floor(Math.random() * 10); // 10 to 19 particles
             for (let i = 0; i < numParticles; i++) {
                 const particle = document.createElement('div');
                 particle.classList.add('particle');
                 particleContainer.appendChild(particle);
 
-                // Position particles around the mouth area (behind the apple)
-                const startX = 49 + (Math.random() - 0.5) * 4; // %
-                const startY = 48 + (Math.random() - 0.5) * 3; // %
-                particle.style.left = `${startX}%`;
-                particle.style.top = `calc(${startY}% - 30px - 1cm)`; // Raised by 1cm
+                // Position particles exactly behind the apple (using the button's position as a reference)
+                const randomOffsetX = (Math.random() - 0.5) * 40; // pixel random offset
+                const randomOffsetY = (Math.random() - 0.5) * 40; // pixel random offset
+
+                particle.style.left = `calc(50% + ${randomOffsetX}px)`;
+                particle.style.top = `calc(52% - ${topOffset} + ${randomOffsetY}px)`;
+
 
                 // Random direction and distance
                 const p_angle = Math.random() * Math.PI * 2;
@@ -1055,9 +1117,22 @@
         }
 
         function manDragStart(e) {
-            if(['man', 'head', 'hands'].includes(e.target.id)) {
+             // Prevent drag from starting on a link
+             if (e.target.closest('a')) {
+                 return;
+             }
+
+            // Allow drag if starting on man, head, hands, or the contact form area
+            if(['man', 'head', 'hands'].includes(e.target.id) || e.target.closest('#contact-form-container')) {
                 isDraggingMan = true;
-                e.target.style.cursor = 'grabbing';
+                
+                // Set the correct cursor based on which character is visible
+                if (wall.classList.contains('raised')) {
+                    hands.style.cursor = 'grabbing';
+                } else {
+                    man.style.cursor = 'grabbing';
+                }
+
                 velocity = 0;
             }
         }
@@ -1082,8 +1157,51 @@
         function manDragEnd() {
             if (isDraggingMan) {
                 isDraggingMan = false;
-                const originalTarget = document.querySelector('[style*="cursor: grabbing"]');
-                if (originalTarget) originalTarget.style.cursor = 'grab';
+                man.style.cursor = 'grab';
+                hands.style.cursor = 'grab';
+            }
+        }
+
+        // --- Tie Drag Logic ---
+        function tieDragStart(e) {
+            if (!wall.classList.contains('raised')) return;
+            e.stopPropagation(); // Prevent character container from being dragged
+            isDraggingTie = true;
+            tieImage.style.cursor = 'grabbing';
+
+            const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+
+            startDragPos = { x: clientX, y: clientY };
+            startTiePos = { x: tieBob.x, y: tieBob.y };
+        }
+
+        function tieDrag(e) {
+            if (!isDraggingTie) return;
+            e.preventDefault();
+            const clientX = e.type.startsWith('touch') ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type.startsWith('touch') ? e.touches[0].clientY : e.clientY;
+
+            const dx = clientX - startDragPos.x;
+            const dy = clientY - startDragPos.y;
+
+            // Limit the stretch distance
+            const stretchDistance = Math.sqrt(Math.pow(startTiePos.x + dx, 2) + Math.pow(startTiePos.y + dy, 2));
+            const maxStretch = 150; 
+            if (stretchDistance > maxStretch) {
+                 const angle = Math.atan2(startTiePos.y + dy, startTiePos.x + dx);
+                 tieBob.x = Math.cos(angle) * maxStretch;
+                 tieBob.y = Math.sin(angle) * maxStretch;
+            } else {
+                tieBob.x = startTiePos.x + dx;
+                tieBob.y = startTiePos.y + dy;
+            }
+        }
+
+        function tieDragEnd() {
+            if (isDraggingTie) {
+                isDraggingTie = false;
+                tieImage.style.cursor = 'grab';
             }
         }
 
@@ -1116,63 +1234,112 @@
             window.addEventListener('deviceorientation', handleOrientation);
         }
 
-        // --- Falling Men Logic ---
-        function createFallingMan(isBackground = false) {
-            const manContainer = document.createElement('div');
-            manContainer.className = 'falling-man';
+        // --- Falling Men Logic (Optimized with Object Pooling) ---
+        const DESKTOP_POOL_SIZE = 25;
+        const MOBILE_POOL_SIZE = 10;
+        const fallingManPool = [];
+        let masterFrontImg, masterBackImg;
 
-            const innerSpinner = document.createElement('div');
-            innerSpinner.className = 'falling-man-inner';
+        function initFallingManFeature() {
+            // Preload images for the pool
+            const frontImgPromise = new Promise(resolve => {
+                masterFrontImg = new Image();
+                masterFrontImg.onload = resolve;
+                masterFrontImg.src = 'https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fman%20front.png?alt=media&token=a8697195-2c8c-4235-961d-72124578b9e6';
+            });
+            const backImgPromise = new Promise(resolve => {
+                masterBackImg = new Image();
+                masterBackImg.onload = resolve;
+                masterBackImg.className = 'falling-man-back';
+                masterBackImg.src = 'https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fman%20back.png?alt=media&token=37b406ff-353e-4f8e-9de1-90460c1bb841';
+            });
 
-            // נשכפל את התמונות הטעונות מראש במקום ליצור חדשות
-            const frontImg = masterFrontImg.cloneNode(true);
-            const backImg = masterBackImg.cloneNode(true);
+            // After images are loaded, create the object pool
+            Promise.all([frontImgPromise, backImgPromise]).then(() => {
+                const isMobile = window.innerWidth <= 800;
+                const poolSize = isMobile ? MOBILE_POOL_SIZE : DESKTOP_POOL_SIZE;
 
-            innerSpinner.append(frontImg, backImg);
-            manContainer.appendChild(innerSpinner);
+                for (let i = 0; i < poolSize; i++) {
+                    const manContainer = document.createElement('div');
+                    manContainer.className = 'falling-man';
+                    manContainer.style.visibility = 'hidden';
 
-            // Set properties based on whether it's a background element
+                    const innerSpinner = document.createElement('div');
+                    innerSpinner.className = 'falling-man-inner';
+
+                    const frontImg = masterFrontImg.cloneNode(true);
+                    const backImg = masterBackImg.cloneNode(true);
+
+                    innerSpinner.append(frontImg, backImg);
+                    manContainer.appendChild(innerSpinner);
+
+                    manContainer.addEventListener('animationend', () => {
+                        manContainer.style.visibility = 'hidden';
+                        // Remove animation to allow it to be reset
+                        manContainer.style.animation = 'none'; 
+                        fallingManPool.push(manContainer);
+                    }, {passive: true});
+
+                    fallingMenContainer.appendChild(manContainer);
+                    fallingManPool.push(manContainer);
+                }
+
+                startSpawningMen();
+            });
+        }
+
+        function spawnFallingMan(isBackground = false) {
+            if (fallingManPool.length === 0) return; // Wait for an object to become available
+
+            const manContainer = fallingManPool.pop();
+            const innerSpinner = manContainer.querySelector('.falling-man-inner');
+
+            // --- Set random properties ---
             manContainer.style.zIndex = isBackground ? '15' : '25';
 
             const size = (isBackground ? 3 + Math.random() * 4 : 6 + Math.random() * 7) * 1.3;
             const aspectRatio = 288 / 757;
             manContainer.style.width = `${size}%`;
             manContainer.style.height = `calc(${size}% / ${aspectRatio})`;
-
             manContainer.style.left = `${Math.random() * 95}%`;
-            
+            manContainer.style.opacity = isBackground ? 0.7 : 1.0;
+
             let fallDuration;
             const baseSpeed = isBackground ? 20 : 10;
             const randomSpeed = isBackground ? 15 : 10;
-             if (Math.random() < 0.3 && !isBackground) { // Only foreground can be extra fast
-                 fallDuration = 5 + Math.random() * 5;
+            if (Math.random() < 0.3 && !isBackground) {
+                fallDuration = 5 + Math.random() * 5;
             } else {
-                 fallDuration = baseSpeed + Math.random() * randomSpeed;
+                fallDuration = baseSpeed + Math.random() * randomSpeed;
             }
-            manContainer.style.animationName = 'fall';
-            manContainer.style.animationDuration = `${fallDuration}s`;
             
-            manContainer.style.opacity = isBackground ? 0.7 : 1.0;
-
             const spinDuration = 2 + Math.random() * 6;
-            innerSpinner.style.animationName = 'spin';
-            innerSpinner.style.animationDuration = `${spinDuration}s`;
+
+            // --- Trigger animations ---
+            // Force a reflow to restart the animation if it was already applied
+            void manContainer.offsetWidth; 
             
-            fallingMenContainer.appendChild(manContainer);
-
-            manContainer.addEventListener('animationend', () => {
-                manContainer.remove();
-            });
-        }
-        
-        function startFallingMenFG() {
-            createFallingMan(false);
-            setTimeout(startFallingMenFG, Math.random() * 1500 + 500);
+            manContainer.style.animation = `fall ${fallDuration}s linear forwards`;
+            innerSpinner.style.animation = `spin ${spinDuration}s linear infinite`;
+            manContainer.style.visibility = 'visible';
         }
 
-        function startFallingMenBG() {
-            createFallingMan(true);
-            setTimeout(startFallingMenBG, Math.random() * 3000 + 1000);
+        function startSpawningMen() {
+            const isMobile = window.innerWidth <= 800;
+
+            // Foreground Spawner
+            (function spawnLoopFG() {
+                spawnFallingMan(false);
+                const delay = isMobile ? (Math.random() * 3000 + 1500) : (Math.random() * 1500 + 500);
+                setTimeout(spawnLoopFG, delay);
+            })();
+
+            // Background Spawner
+            (function spawnLoopBG() {
+                spawnFallingMan(true);
+                const delay = isMobile ? (Math.random() * 5000 + 2500) : (Math.random() * 3000 + 1000);
+                setTimeout(spawnLoopBG, delay);
+            })();
         }
 
         // --- Main Animation Loop ---
@@ -1189,6 +1356,34 @@
             headVelocity += headForce;
             headVelocity *= headDamping;
             headAngle += headVelocity;
+
+            // --- Tie Physics Update ---
+            if (wall.classList.contains('raised')) {
+                if (!isDraggingTie) {
+                    const dx = tieBob.x - tieAnchor.x;
+                    const dy = tieBob.y - tieAnchor.y;
+                    const ax = dx * -tieSpring;
+                    const ay = dy * -tieSpring;
+
+                    tieVelocity.x += ax;
+                    tieVelocity.y += ay;
+                    tieVelocity.x *= tieFriction;
+                    tieVelocity.y *= tieFriction;
+
+                    tieBob.x += tieVelocity.x;
+                    tieBob.y += tieVelocity.y;
+                }
+                tieWrapper.style.transform = `translate(${tieBob.x}px, ${tieBob.y}px)`;
+            } else {
+                // Reset tie position and physics when wall is not raised
+                if (tieBob.x !== 0 || tieBob.y !== 0 || tieVelocity.x !== 0 || tieVelocity.y !== 0) {
+                    tieBob.x = 0;
+                    tieBob.y = 0;
+                    tieVelocity.x = 0;
+                    tieVelocity.y = 0;
+                    tieWrapper.style.transform = 'translate(0px, 0px)';
+                }
+            }
 
             const isAtRest = Math.abs(velocity) < 0.0005 && Math.abs(angle - targetAngle) < 0.01;
 
@@ -1231,13 +1426,20 @@
             const subHeadlineRelativeRotation = (angle - delayedAngle) * (180 / Math.PI);
             const subHeadlineRotationStyle = `rotate(${subHeadlineRelativeRotation}deg)`;
 
-            bodyAndHeadContainer.style.transform = rotationStyle;
-            head.style.transform = wobbleRotationStyle;
-            hat.style.transform = wobbleRotationStyle;
-            eat.style.transform = wobbleRotationStyle;
+            characterContainer.style.transform = rotationStyle;
+            headContainer.style.transform = wobbleRotationStyle; // The entire head unit now wobbles together
             textOverlay.style.transform = textRotationStyle;
             wallTextOverlay.style.transform = textRotationStyle;
             subHeadline.style.transform = subHeadlineRotationStyle;
+
+            // --- Parallax Effect ---
+            const parallaxFactorBg = 80;
+            const parallaxFactorWall = 160;
+            const bgTranslateX = -angle * parallaxFactorBg;
+            const wallTranslateX = -angle * parallaxFactorWall;
+
+            bg.style.transform = `translateX(calc(-50% + ${bgTranslateX}px)) scale(1.3)`;
+            wall.style.transform = `translateX(calc(-50% + ${wallTranslateX}px)) scale(1.15)`;
 
             // --- "EAT" Blinking, Apple Pulse & Particle Logic ---
             if (isAtRest) {
@@ -1262,30 +1464,40 @@
         // --- Event Listeners & Initialization ---
         window.addEventListener('load', () => {
             textOverlay.style.opacity = 1;
-            // Delay the start of the falling men animation
-            setTimeout(() => {
-                const isMobile = window.innerWidth <= 800;
-                if (!isMobile) {
-                    startFallingMenFG();
-                    startFallingMenBG();
-                }
-            }, 5000); 
+            
+            if (window.innerWidth > 800) {
+                // Delay the start of the falling men animation only on desktop
+                setTimeout(() => {
+                    initFallingManFeature();
+                }, 5000); 
+            }
+            
+            updatePivot();
+            animate();
         });
         
         window.addEventListener('resize', updatePivot);
-        man.addEventListener('mousedown', manDragStart);
-        head.addEventListener('mousedown', manDragStart);
-        hands.addEventListener('mousedown', manDragStart);
-        man.addEventListener('touchstart', manDragStart, { passive: false });
-        head.addEventListener('touchstart', manDragStart, { passive: false });
-        hands.addEventListener('touchstart', manDragStart, { passive: false });
+        
+        artContainer.addEventListener('mousedown', manDragStart);
+        artContainer.addEventListener('touchstart', manDragStart, { passive: false });
+
         document.addEventListener('mousemove', manDrag);
         document.addEventListener('touchmove', manDrag, { passive: false });
         document.addEventListener('mouseup', manDragEnd);
         document.addEventListener('touchend', manDragEnd);
 
+        tieImage.addEventListener('mousedown', tieDragStart);
+        tieImage.addEventListener('touchstart', tieDragStart, { passive: false });
+        document.addEventListener('mousemove', tieDrag);
+        document.addEventListener('touchmove', tieDrag, { passive: false });
+        document.addEventListener('mouseup', tieDragEnd);
+        document.addEventListener('touchend', tieDragEnd);
+
+
         appleContainer.addEventListener('click', () => {
             if (!appleContainer.classList.contains('clickable')) return;
+            
+            wall.classList.toggle('raised'); // Toggle the wall on apple click
 
             // Trigger a bigger particle burst
             createBiteEffect();
@@ -1314,13 +1526,34 @@
         wallToggleBtn.addEventListener('click', (e) => {
             e.stopPropagation(); // Prevent click from reaching the man
             wall.classList.toggle('raised');
+
+            // Mobile-only red apple blink effect on click
+            const isMobile = window.innerWidth <= 800;
+            if (isMobile) {
+                if (appleContainer.dataset.blinkTimeout) {
+                    clearTimeout(parseInt(appleContainer.dataset.blinkTimeout));
+                }
+                appleContainer.classList.add('flicker-red');
+                const timeoutId = setTimeout(() => {
+                    appleContainer.classList.remove('flicker-red');
+                    delete appleContainer.dataset.blinkTimeout;
+                }, 3000);
+                appleContainer.dataset.blinkTimeout = timeoutId;
+            }
         });
 
         wallToggleBtn.addEventListener('mouseover', () => {
-            appleContainer.classList.add('flicker-red');
+            const isMobile = window.innerWidth <= 800;
+            if (!isMobile) {
+                 appleContainer.classList.add('flicker-red');
+            }
         });
+
         wallToggleBtn.addEventListener('mouseout', () => {
-            appleContainer.classList.remove('flicker-red');
+            const isMobile = window.innerWidth <= 800;
+            if (!isMobile) {
+                appleContainer.classList.remove('flicker-red');
+            }
         });
 
         function triggerGlitch() {
@@ -1338,21 +1571,7 @@
 
         // Initial call to start the glitching loop
         setTimeout(triggerGlitch, 3000); // Start after 3 seconds
-
-        updatePivot();
-        animate();
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
 
