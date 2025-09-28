@@ -1351,10 +1351,7 @@
             const wobbleAngle = headAngle - angle;
             const tieWobbleAngle = tieAngle - angle;
             const wobbleRotationStyle = `rotate(${wobbleAngle * (180 / Math.PI) * 2.5}deg)`;
-
-            const isMobile = window.innerWidth <= 800;
-            const tieScale = isMobile ? ' scaleX(1.2)' : '';
-            const tieWobbleRotationStyle = `rotate(${tieWobbleAngle * (180 / Math.PI) * 2.5}deg)${tieScale}`;
+            const tieWobbleRotationStyle = `rotate(${tieWobbleAngle * (180 / Math.PI) * 2.5}deg)`;
 
             const subHeadlineRelativeRotation = (angle - delayedAngle) * (180 / Math.PI);
             const subHeadlineRotationStyle = `rotate(${subHeadlineRelativeRotation}deg)`;
