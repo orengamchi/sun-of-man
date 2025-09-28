@@ -12,8 +12,14 @@
     <link rel="preload" href="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fhands.png?alt=media&token=61201388-702e-4999-86b3-771149f433bd" as="image">
     <link rel="preload" href="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fwall%20%20move.png?alt=media&token=bbc568bc-b380-4c47-91fd-f987916e101e" as="image">
     <link rel="preload" href="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Ftie.png?alt=media&token=c9d88174-b999-42f8-8fd6-afeb06500d3f" as="image">
+    <link rel="preload" href="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fhead.png?alt=media&token=b2516d34-8a4d-4b6f-87fe-0540de7260bb" as="image">
+    <link rel="preload" href="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fhat.png?alt=media&token=d71697e7-7ef1-478d-9cd9-8679d75e3bad" as="image">
+    <link rel="preload" href="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Feat.png?alt=media&token=4b5bcb6b-2487-4b1c-b0f2-fae65eb72b97" as="image">
+    <link rel="preload" href="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fman%20front.png?alt=media&token=a8697195-2c8c-4235-961d-72124578b9e6" as="image">
+    <link rel="preload" href="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fman%20back.png?alt=media&token=37b406ff-353e-4f8e-9de1-90460c1bb841" as="image">
 
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,7 +44,7 @@
         #art-container {
             position: relative;
             width: 1326px; /* Increased by 30% */
-            height: 936px; /* Increased by 30% */
+            height: 926px; /* Shortened by 10px */
             margin: 2rem;
             overflow: hidden;
             background-color: #f0f0f0;
@@ -343,6 +349,36 @@
             opacity: 1;
         }
 
+        #contact-card {
+            z-index: 4; /* Behind tie */
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease-in-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #3a3a3a;
+            font-family: 'Gilda Display', serif;
+        }
+
+        .contact-content {
+            position: relative;
+            top: calc(12% + 1cm); 
+            text-align: center;
+        }
+
+        .contact-header {
+            font-size: 2.2rem;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.8rem;
+        }
+
+        .contact-detail {
+            font-family: 'Assistant', sans-serif;
+            font-size: 1.4rem;
+            line-height: 2;
+        }
+
         #wall-toggle-btn {
             z-index: 110; /* Above apple, below portfolio buttons */
             position: absolute;
@@ -410,79 +446,33 @@
             animation: blink-animation 0.4s step-end infinite; /* Make red apple blink */
             opacity: 1; /* Ensure it starts visible for animation */
         }
-
-        #portfolio-buttons-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1500;
-            pointer-events: none; /* Let clicks pass through */
+        
+        #social-links-container {
+            z-index: 120;
+            pointer-events: none;
         }
         
-        #portfolio-buttons-container.visible .portfolio-btn {
-            opacity: 1;
+        .social-canvas {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            top: 30%; /* Start position above the final position, but behind wall */
             transform: translate(-50%, -50%);
-            pointer-events: auto; /* Only buttons are clickable */
-        }
-
-        .portfolio-btn {
-            position: absolute;
-            top: 78%; /* Raised buttons */
-            left: 50%;
-            width: 120px; /* Reduced by 15% */
-            height: 120px; /* Reduced by 15% */
-            background: radial-gradient(circle at 40% 35%, #6a6a6a, #1a1a1a);
-            border-radius: 50%;
-            border: none;
-            color: white;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 2.1rem; /* Reduced by 15% */
-            font-weight: 700;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             opacity: 0;
-            pointer-events: none; /* Not clickable when hidden */
-            transform: translate(-50%, calc(-50% + 20px)); /* Start lower */
-            transition: opacity 0.4s ease-out 0.7s, transform 0.4s ease-out 0.7s, box-shadow 0.3s ease; /* Delayed fade and slide-in */
-            text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
-            box-shadow: 
-                inset -10px -10px 20px rgba(255, 255, 255, 0.15), /* Inner highlight */
-                inset 5px 5px 15px rgba(0, 0, 0, 0.5), /* Inner shadow */
-                0 15px 25px rgba(0, 0, 0, 0.5); /* Outer shadow */
-            overflow: hidden; /* Clips the reflection */
-        }
-        
-        #left-portfolio-btn {
-            left: calc(50% - 1326px * 0.28); 
+            transition: opacity 0.5s ease-out 0.8s, top 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) 0.6s;
+            pointer-events: none; /* Not clickable when hidden/animating */
+            cursor: pointer;
         }
 
-        #right-portfolio-btn {
-            left: calc(50% + 1326px * 0.28);
+        #wall.raised ~ #social-links-container .social-canvas {
+            top: calc(78% - 0.5cm); /* End position */
+            opacity: 1;
+            pointer-events: auto; /* Clickable when visible */
         }
 
-        .portfolio-btn::before {
-            content: '';
-            position: absolute;
-            top: 2%;
-            left: 10%;
-            width: 80%;
-            height: 45%;
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.05) 100%);
-            border-radius: 50%;
-            transform: skewX(-15deg);
-        }
 
-        .portfolio-btn:hover {
-            transform: translate(-50%, -50%) scale(1.05); /* On hover, move to final position and scale slightly */
-            box-shadow: 
-                inset -15px -15px 25px rgba(255, 255, 255, 0.2),
-                inset 8px 8px 20px rgba(0, 0, 0, 0.6),
-                0 20px 30px rgba(0, 0, 0, 0.6);
-        }
+        #github-canvas { left: calc(20% - 0.5cm); }
+        #linkedin-canvas { left: calc(80% + 0.5cm); }
 
         /* Lamp and Lens Flare Styles */
         #lamp-fx {
@@ -626,7 +616,7 @@
         
         #tie {
             opacity: 0;
-            z-index: 4;
+            z-index: 5; /* Above contact card */
             pointer-events: none;
             transform-origin: 50% 10%;
             transition: opacity 0.2s ease-in-out;
@@ -638,96 +628,12 @@
         }
         
         #wall.raised ~ #character-container #hands,
-        #wall.raised ~ #character-container #tie {
+        #wall.raised ~ #character-container #tie,
+        #wall.raised ~ #character-container #contact-card {
             opacity: 1;
             pointer-events: auto;
         }
 
-        /* Contact Form Styles */
-        #contact-form-container {
-            z-index: 5; /* Relative to parent */
-            top: 58%; /* Repositioned */
-            left: 35%; /* Repositioned */
-            width: 30%; /* Resized */
-            height: 35%; /* Resized */
-            font-family: 'Assistant', sans-serif;
-            color: #334155; /* slate-700 */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none; /* Make container non-interactive by default */
-            transition: opacity 0.2s ease-in-out; /* Synchronized with hands layer */
-        }
-        
-        #wall.raised ~ #character-container #contact-form-container {
-            opacity: 1;
-            pointer-events: auto; /* Allow drag on the form area */
-        }
-        
-        /* When the wall is raised, make ONLY the links and SVGs inside the form clickable */
-        #wall.raised ~ #character-container #contact-form-container a,
-        #wall.raised ~ #character-container #contact-form-container svg {
-            pointer-events: auto;
-        }
-
-
-        .contact-content {
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem; /* Space between items */
-        }
-        
-        .contact-content h3 {
-            font-family: 'Gilda Display', serif;
-            font-size: 1.4rem;
-            margin-bottom: 0.3rem;
-            letter-spacing: 0.1em;
-        }
-
-        .contact-item {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .contact-item a {
-            font-size: 1rem;
-            text-decoration: none;
-            color: #334155;
-            transition: color 0.2s;
-        }
-
-        .contact-item a:hover {
-            color: #0ea5e9; /* sky-500 */
-        }
-
-        .contact-item svg {
-            width: 20px;
-            height: 20px;
-            fill: #64748b; /* slate-500 */
-        }
-
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 1rem; /* Adjusted gap */
-            margin-top: 0.5rem;
-        }
-
-        .social-links a svg {
-            width: 24px;
-            height: 24px;
-            fill: #475569; /* slate-600 */
-            transition: fill 0.2s, transform 0.2s;
-        }
-
-        .social-links a:hover svg {
-            fill: #0ea5e9;
-            transform: scale(1.1);
-        }
 
         /* --- Styles for Falling Men --- */
         #falling-men-container {
@@ -822,54 +728,17 @@
                 transform: scaleX(1.8); /* Revert to original size on mobile */
             }
             
-            .portfolio-btn {
-                width: 50px; /* Reduced by 50% */
-                height: 50px; /* Reduced by 50% */
-                font-size: 0.9rem; /* Reduced by 50% */
-                top: 80%; /* Adjusted button height */
+            .social-canvas {
+                width: 120px;
+                height: 120px;
             }
 
-            #left-portfolio-btn {
-                left: 25%; /* Moved closer to center */
-            }
-
-            #right-portfolio-btn {
-                left: 75%; /* Moved closer to center */
+            #wall.raised ~ #social-links-container .social-canvas {
+                top: calc(80% - 0.5cm);
             }
             
-            #portfolio-buttons-container.visible #left-portfolio-btn,
-            #portfolio-buttons-container.visible #right-portfolio-btn {
-                 transform: translate(-50%, -50%);
-            }
-            
-            .portfolio-btn:hover {
-                transform: translate(-50%, -50%) scale(1.05);
-            }
-            
-
-            #contact-form-container {
-                width: 60%;
-                left: 20%;
-                top: 55%;
-                height: 40%;
-            }
-
-            .contact-content h3 {
-                font-size: 1.2rem;
-            }
-
-            .contact-item a {
-                font-size: 0.9rem;
-            }
-            .contact-item svg {
-                width: 16px;
-                height: 16px;
-            }
-            .social-links a svg {
-                width: 20px;
-                height: 20px;
-            }
-
+            #github-canvas { left: calc(20% - 0.5cm); }
+            #linkedin-canvas { left: calc(80% + 0.5cm); }
 
             /* Adjust the main pendulum pivot for a better feel on portrait screens */
             #character-container {
@@ -880,6 +749,17 @@
             #man, #hands, #head, #hat, #eat {
                 object-fit: cover;
                 object-position: bottom;
+            }
+
+            .contact-header {
+                font-size: 1.5rem;
+                margin-bottom: 1.2rem;
+            }
+            .contact-detail {
+                font-size: 1rem;
+            }
+            .contact-content {
+                top: calc(16% + 1cm);
             }
         }
 
@@ -906,7 +786,7 @@
         </div>
 
         <div id="wall-text-overlay" class="layer">
-            <span>VISIT<br>MY<br>SITE</span>
+            <span>VISIT<br>MY<br>SITES</span>
         </div>
         
         <div id="character-container" class="layer">
@@ -943,39 +823,29 @@
             </div>
             <img id="man" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fman.png?alt=media&token=8da1ff64-f319-49fa-91de-28ec3d5f4976" alt="איש" class="layer">
             <img id="hands" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fhands.png?alt=media&token=61201388-702e-4999-86b3-771149f433bd" alt="ידיים" class="layer">
-            <img id="tie" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Ftie.png?alt=media&token=c9d88174-b999-42f8-8fd6-afeb06500d3f" alt="עניבה" class="layer">
-
-            <div id="contact-form-container" class="layer">
+            <div id="contact-card" class="layer">
                 <div class="contact-content">
-                    <h3>GET IN TOUCH</h3>
-                    <div class="contact-item">
-                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6.62,10.79C8.06,13.62 10.38,15.94 13.21,17.38L15.41,15.18C15.69,14.9 16.08,14.82 16.43,14.93C17.55,15.3 18.75,15.5 20,15.5A1,1 0 0,1 21,16.5V20A1,1 0 0,1 20,21A17,17 0 0,1 3,4A1,1 0 0,1 4,3H7.5A1,1 0 0,1 8.5,4C8.5,5.25 8.7,6.45 9.07,7.57C9.18,7.92 9.1,8.31 8.82,8.59L6.62,10.79Z"/></svg>
-                        <a href="tel:0523034888">052-303-4888</a>
-                    </div>
-                    <div class="contact-item">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,16.5C11,16.5 10,16.5 10,17C10,17.5 11,17.5 11,17.5V19H9V16C9,15.5 10,15.5 10,15.5C10,15.5 11,15.5 11,15V13H9V11H11V8.5C11,8.5 11,7.5 10,7.5C9,7.5 9,8.5 9,8.5V10H7V8C7,7 8,6 10,6C12,6 13,7 13,8V10H15V12H13V15C13,15.5 14,15.5 14,15.5C14,15.5 15,15.5 15,16V17.5H13V16.5C13,16.5 14,16.5 14,16C14,15.5 13,15.5 13,15.5V13H11V16.5Z"/></svg>
-                        <a href="https://DAFKAZE.COM" target="_blank">DAFKAZE.COM</a>
-                    </div>
-                    <div class="contact-item">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4M20 18H4V8L12 13L20 8V18M12 11L4 6H20L12 11Z"/></svg>
-                        <a href="mailto:ORENREDE@GMAIL.COM">ORENREDE@GMAIL.COM</a>
-                    </div>
-                    <div class="social-links">
-                        <a href="https://www.linkedin.com/in/oren-gamchi/" target="_blank" title="LinkedIn">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 3A2 2 0 0 1 21 5V19A2 2 0 0 1 19 21H5A2 2 0 0 1 3 19V5A2 2 0 0 1 5 3H19M18.5 18.5V13.2A3.26 3.26 0 0 0 15.24 9.94C14.39 9.94 13.4 10.46 12.92 11.24V10.13H10.13V18.5H12.92V13.57C12.92 12.8 13.54 12.17 14.31 12.17A1.4 1.4 0 0 1 15.71 13.57V18.5H18.5M6.88 8.56A1.68 1.68 0 0 0 8.56 6.88C8.56 6 8 5.44 7.19 5.44C6.38 5.44 5.81 6 5.81 6.88A1.68 1.68 0 0 0 6.88 8.56M8.27 18.5V10.13H5.5V18.5H8.27Z"/></svg>
+                    <h2 class="contact-header">GET IN TOUCH</h2>
+                    <p class="contact-detail">052-303-4888</p>
+                    <p class="contact-detail">DAFKAZE.COM</p>
+                    <p class="contact-detail">ORENREDE@GMAIL.COM</p>
+                    <div class="mt-8 flex justify-center space-x-6">
+                        <a href="https://www.facebook.com/orengamchi" target="_blank" class="text-gray-600 hover:text-gray-800 transition-colors">
+                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" /></svg>
                         </a>
-                        <a href="https://www.artstation.com/orengamchi" target="_blank" title="ArtStation">
-                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M1.3,13.2L12,2L22.7,13.2L19.8,18.1H4.2L1.3,13.2M13,16.9H16.8L18,14.8L12,5.2L6,14.8L7.2,16.9H11V15.7H8.3L12,9.3L15.7,15.7H13V16.9Z"/></svg>
+                        <a href="https://github.com/orengamchi" target="_blank" class="text-gray-600 hover:text-gray-800 transition-colors">
+                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.165 6.839 9.49.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.03 1.595 1.03 2.688 0 3.848-2.338 4.695-4.566 4.942.359.308.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z" clip-rule="evenodd" /></svg>
                         </a>
-                        <a href="https://github.com/orengamchi" target="_blank" title="GitHub">
-                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12c0 4.42 2.87 8.17 6.84 9.5.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.1.39-1.99 1.03-2.69a3.6 3.6 0 0 1 .1-2.64s.84-.27 2.75 1.02a9.58 9.58 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.4.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 22 12C22 6.48 17.52 2 12 2Z"/></svg>
+                        <a href="https://www.artstation.com/dafka" target="_blank" class="text-gray-600 hover:text-gray-800 transition-colors">
+                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14.22 10.37L12 15.35l-2.22-4.98H5l7 12 7-12h-4.78zM12 2L2 10h5l5-8 5 8h5L12 2z"/></svg>
                         </a>
-                        <a href="https://www.facebook.com/oren.gamchi" target="_blank" title="Facebook">
-                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2.04C6.5 2.04 2 6.53 2 12.06c0 5.52 4.5 10.02 10 10.02 5.5 0 10-4.5 10-10.02C22 6.53 17.5 2.04 12 2.04M16.5 8.25h-1.88c-.56 0-.67.27-.67.66v1.25h2.5L16 12.5h-2v5h-2.5v-5h-2V10.2h2V8.8c0-2 1.22-3.1 3-3.1h2.3v2.25Z"/></svg>
+                        <a href="https://www.linkedin.com/in/oren-gamchi/" target="_blank" class="text-gray-600 hover:text-gray-800 transition-colors">
+                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
                         </a>
                     </div>
                 </div>
             </div>
+            <img id="tie" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Ftie.png?alt=media&token=c9d88174-b999-42f8-8fd6-afeb06500d3f" alt="עניבה" class="layer">
 
             <div id="head-container" class="layer">
                 <img id="head" src="https://firebasestorage.googleapis.com/v0/b/portfolioflow-8qrng.firebasestorage.app/o/oren_pics%2Fsonofman%2Fhead.png?alt=media&token=b2516d34-8a4d-4b6f-87fe-0540de7260bb" alt="ראש" class="layer">
@@ -992,17 +862,13 @@
         </div>
         
         <button id="wall-toggle-btn" class="layer"></button>
+        <div id="social-links-container" class="layer">
+             <canvas id="github-canvas" class="social-canvas"></canvas>
+             <canvas id="linkedin-canvas" class="social-canvas"></canvas>
+        </div>
+
     </div>
     
-    <div id="portfolio-buttons-container">
-        <a href="https://studio--portfolioflow-8qrng.us-central1.hosted.app/" target="_blank" id="left-portfolio-btn" class="portfolio-btn">
-            AI
-        </a>
-        <a href="https://studio--portfolioflow-8qrng.us-central1.hosted.app/about" target="_blank" id="right-portfolio-btn" class="portfolio-btn">
-            HR
-        </a>
-    </div>
-
     <div id="permission-request">
         <button id="permission-btn" class="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-indigo-700 transition-colors text-base">
             הפעל חיישני תנועה
@@ -1032,7 +898,7 @@
         const wallTextOverlay = document.getElementById('wall-text-overlay');
         const wallHeaderText = document.getElementById('wall-header-text');
         const fallingMenContainer = document.getElementById('falling-men-container');
-        const portfolioButtonsContainer = document.getElementById('portfolio-buttons-container');
+        const socialLinksContainer = document.getElementById('social-links-container');
 
         // --- Preload Images ---
         const imageUrls = [
@@ -1053,6 +919,14 @@
         let tieAngle = 0, tieVelocity = 0;
         const tieSpring = 0.03;
         const tieDamping = 0.95;
+        
+        
+        // --- 3D Social Buttons ---
+        const socialLinks = [
+            { canvasId: 'github-canvas', texture: 'https://i.imgur.com/039Vw2p.png', url: 'https://studio--portfolioflow-8qrng.us-central1.hosted.app/' },
+            { canvasId: 'linkedin-canvas', texture: 'https://i.imgur.com/4l3A4YF.png', url: 'https://studio--portfolioflow-8qrng.us-central1.hosted.app/about' }
+        ];
+        const spheres = [];
 
 
         // --- Particle Effect Logic ---
@@ -1111,7 +985,7 @@
             }
 
             // Allow drag if starting on man, head, hands, or the contact form area
-            if(['man', 'head', 'hands'].includes(e.target.id) || e.target.closest('#contact-form-container')) {
+            if(['man', 'head', 'hands'].includes(e.target.id)) {
                 isDraggingMan = true;
                 const cursorTarget = hands.style.opacity === '1' ? hands : man;
                 if(cursorTarget) {
@@ -1284,6 +1158,63 @@
                 setTimeout(spawnLoopBG, delay);
             })();
         }
+        
+        function init3DButtons() {
+            socialLinks.forEach(link => {
+                const canvas = document.getElementById(link.canvasId);
+                if (!canvas) return;
+
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
+                camera.position.z = 2.6;
+
+                const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+                renderer.setClearColor(0x000000, 0); 
+                
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+                scene.add(ambientLight);
+                const pointLight = new THREE.PointLight(0xffffff, 0.7);
+                pointLight.position.set(2, 5, 5);
+                scene.add(pointLight);
+
+                const textureLoader = new THREE.TextureLoader();
+                textureLoader.setCrossOrigin("anonymous");
+                const texture = textureLoader.load(link.texture);
+                
+                const geometry = new THREE.SphereGeometry(1.6, 32, 32);
+                const material = new THREE.MeshStandardMaterial({
+                       map: texture,
+                       metalness: 0.2,
+                       roughness: 0.8
+                });
+                const sphere = new THREE.Mesh(geometry, material);
+                scene.add(sphere);
+
+                const raycaster = new THREE.Raycaster();
+                const mouse = new THREE.Vector2();
+
+                canvas.addEventListener('click', (event) => {
+                    const rect = canvas.getBoundingClientRect();
+                    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+                    raycaster.setFromCamera(mouse, camera);
+                    const intersects = raycaster.intersectObjects(scene.children);
+                    if (intersects.length > 0) {
+                        window.open(link.url, '_blank');
+                    }
+                });
+                
+                canvas.addEventListener('mousemove', (event) => {
+                    const rect = canvas.getBoundingClientRect();
+                    const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                    const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+                    sphere.rotation.y = x * 0.5;
+                    sphere.rotation.x = -y * 0.5;
+                });
+
+                spheres.push({ scene, camera, renderer, sphere });
+            });
+        }
 
         // --- Main Animation Loop ---
         function animate() {
@@ -1385,15 +1316,20 @@
                     particleIntervalId = null;
                 }
             }
+            
+             // Render 3D spheres
+            spheres.forEach(s => {
+                s.renderer.render(s.scene, s.camera);
+            });
         }
         
         // --- Event Listeners & Initialization ---
         window.addEventListener('load', () => {
             textOverlay.style.opacity = 1;
-            // Delay the start of the falling men animation
             setTimeout(() => {
                 initFallingManFeature();
             }, 5000); 
+            init3DButtons();
             updatePivot();
             animate();
         });
@@ -1412,7 +1348,7 @@
             if (!appleContainer.classList.contains('clickable')) return;
             
             wall.classList.toggle('raised'); 
-            portfolioButtonsContainer.classList.toggle('visible');
+            socialLinksContainer.classList.toggle('visible');
 
             // Trigger a bigger particle burst
             createBiteEffect();
@@ -1441,7 +1377,7 @@
         wallToggleBtn.addEventListener('click', (e) => {
             e.stopPropagation(); // Prevent click from reaching the man
             wall.classList.toggle('raised');
-            portfolioButtonsContainer.classList.toggle('visible');
+            socialLinksContainer.classList.toggle('visible');
 
 
             // Mobile-only red apple blink effect on click
@@ -1491,5 +1427,4 @@
     </script>
 </body>
 </html>
-
 
