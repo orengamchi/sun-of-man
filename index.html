@@ -1068,6 +1068,9 @@
 
         function createBiteEffect() {
             const numParticles = 10 + Math.floor(Math.random() * 10); // 10 to 19 particles
+            const isMobile = window.innerWidth <= 800;
+            const topOffset = isMobile ? '3.5cm' : '6.5cm';
+
             for (let i = 0; i < numParticles; i++) {
                 const particle = document.createElement('div');
                 particle.classList.add('particle');
@@ -1078,7 +1081,7 @@
                 const randomOffsetY = (Math.random() - 0.5) * 40; // pixel random offset
 
                 particle.style.left = `calc(50% + ${randomOffsetX}px)`;
-                particle.style.top = `calc(52% - 6.5cm + ${randomOffsetY}px)`;
+                particle.style.top = `calc(52% - ${topOffset} + ${randomOffsetY}px)`;
 
 
                 // Random direction and distance
@@ -1493,4 +1496,5 @@
     </script>
 </body>
 </html>
+
 
